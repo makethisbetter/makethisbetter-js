@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Make This Better — Widget Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(160deg, #f6f7f9 0%, #eef0f3 60%, #e9ebef 100%);
+      min-height: 100vh;
+      color: #191a1c;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .app-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 32px 24px;
+    }
+
+    /* Browser chrome */
+    .browser-chrome {
+      background: #fff;
+      border: 1px solid rgba(0,0,0,0.09);
+      border-radius: 13px;
+      box-shadow: 0 8px 30px rgba(30,27,75,0.09);
+      overflow: hidden;
+    }
+
+    .browser-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      height: 40px;
+      padding: 0 14px;
+      background: #eef0f4;
+      border-bottom: 1px solid rgba(0,0,0,0.07);
+    }
+
+    .browser-dots { display: flex; gap: 7px; }
+    .browser-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+    }
+    .dot-red { background: #ec6a5e; }
+    .dot-yellow { background: #f4bf4f; }
+    .dot-green { background: #61c454; }
+
+    .browser-url {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+    }
+    .browser-url-bar {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      height: 26px;
+      padding: 0 16px;
+      background: #fff;
+      border: 1px solid rgba(0,0,0,0.07);
+      border-radius: 7px;
+      font-size: 12px;
+      color: rgba(0,0,0,0.55);
+      font-family: monospace;
+    }
+    .url-lock { color: #059669; }
+
+    /* App content */
+    .app-content {
+      padding: 24px 26px 28px;
+      background: #fafbfc;
+    }
+
+    .app-header {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      margin-bottom: 22px;
+    }
+
+    .app-logo {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: linear-gradient(140deg, #10b981, #059669);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .app-title {
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .app-nav {
+      margin-left: auto;
+      display: flex;
+      gap: 18px;
+      font-size: 13px;
+      color: rgba(0,0,0,0.5);
+    }
+    .app-nav .active { color: #047857; font-weight: 600; }
+    .app-nav a { text-decoration: none; color: inherit; cursor: pointer; }
+
+    /* Report card */
+    .report-card {
+      background: #fff;
+      border: 1px solid rgba(0,0,0,0.09);
+      border-radius: 14px;
+      box-shadow: 0 4px 24px rgba(30,27,75,0.06);
+      margin-bottom: 20px;
+    }
+
+    .report-header {
+      padding: 17px 22px;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .report-title { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
+    .report-subtitle { font-size: 11.5px; color: rgba(0,0,0,0.4); margin-top: 2px; font-family: monospace; }
+
+    .btn-group { display: flex; gap: 8px; align-items: center; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 30px;
+      padding: 0 12px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 500;
+    }
+    .btn-secondary {
+      border: 1px solid rgba(0,0,0,0.12);
+      background: #fff;
+      color: #191a1c;
+    }
+    .btn-primary {
+      background: #059669;
+      color: #fff;
+    }
+    .btn-primary:hover { background: #047857; }
+
+    .report-body { padding: 22px; }
+
+    .stats-grid {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .stat-card {
+      flex: 1;
+      padding: 11px 15px;
+      background: #f4f5f8;
+      border-radius: 10px;
+    }
+    .stat-label { font-size: 10.5px; color: rgba(0,0,0,0.42); margin-bottom: 3px; font-weight: 500; }
+    .stat-value { font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
+
+    /* Chart */
+    .chart-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 6px;
+      height: 104px;
+      padding: 0 4px;
+    }
+    .bar {
+      flex: 1;
+      border-radius: 3px 3px 0 0;
+    }
+    .bar-old { background: #dfe1e6; }
+    .bar-new { background: #10b981; }
+    .chart-labels {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 4px 0;
+      font-size: 10px;
+      color: rgba(0,0,0,0.4);
+      font-family: monospace;
+    }
+
+    /* Settings card */
+    .settings-card {
+      background: #fff;
+      border: 1px solid rgba(0,0,0,0.09);
+      border-radius: 14px;
+      box-shadow: 0 4px 24px rgba(30,27,75,0.06);
+      padding: 20px 22px;
+    }
+    .settings-title { font-size: 15px; font-weight: 600; margin-bottom: 16px; }
+    .settings-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    .settings-row:last-child { border-bottom: none; }
+    .settings-label { font-size: 13.5px; font-weight: 500; }
+    .settings-desc { font-size: 12px; color: rgba(0,0,0,0.45); margin-top: 2px; }
+    .toggle {
+      width: 40px;
+      height: 22px;
+      border-radius: 11px;
+      background: #10b981;
+      position: relative;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .toggle::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    .toggle.off { background: #d1d5db; }
+    .toggle.off::after { right: auto; left: 2px; }
+
+    /* Demo note */
+    .demo-note {
+      text-align: center;
+      padding: 20px;
+      font-size: 13px;
+      color: rgba(0,0,0,0.45);
+    }
+    .demo-note strong { color: #059669; }
+
+    /* Config panel */
+    .config-panel {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      background: #1a1a2e;
+      color: #fff;
+      border-radius: 12px;
+      padding: 16px;
+      font-size: 12px;
+      font-family: monospace;
+      max-width: 280px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      z-index: 100;
+    }
+    .config-title { font-weight: 600; margin-bottom: 10px; color: #10b981; }
+    .config-field { margin-bottom: 8px; }
+    .config-label { display: block; color: rgba(255,255,255,0.6); margin-bottom: 3px; font-size: 10px; }
+    .config-input {
+      width: 100%;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 6px;
+      padding: 6px 10px;
+      color: #fff;
+      font-family: monospace;
+      font-size: 12px;
+      outline: none;
+    }
+    .config-input:focus { border-color: #10b981; }
+    .config-row { display: flex; gap: 8px; }
+    .config-select {
+      flex: 1;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 6px;
+      padding: 6px 8px;
+      color: #fff;
+      font-family: monospace;
+      font-size: 11px;
+      outline: none;
+    }
+    .config-btn {
+      width: 100%;
+      padding: 8px;
+      background: #059669;
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      cursor: pointer;
+      font-family: monospace;
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 10px;
+    }
+    .config-btn:hover { background: #047857; }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Demo intro -->
+    <div class="demo-note" style="margin-bottom: 16px;">
+      <strong>Make This Better Widget Demo</strong> — Click the green <strong>Feedback</strong> tab on the right to try it
+    </div>
+
+    <!-- Simulated browser -->
+    <div class="browser-chrome">
+      <div class="browser-toolbar">
+        <div class="browser-dots">
+          <span class="browser-dot dot-red"></span>
+          <span class="browser-dot dot-yellow"></span>
+          <span class="browser-dot dot-green"></span>
+        </div>
+        <div class="browser-url">
+          <div class="browser-url-bar">
+            <svg class="url-lock" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            app.acme.com/reports
+          </div>
+        </div>
+        <div style="width:48px;"></div>
+      </div>
+
+      <div class="app-content">
+        <div class="app-header">
+          <div class="app-logo">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </div>
+          <span class="app-title">Acme Analytics</span>
+          <nav class="app-nav">
+            <a>Dashboard</a>
+            <a class="active">Reports</a>
+            <a>Settings</a>
+          </nav>
+        </div>
+
+        <!-- Report card -->
+        <div class="report-card">
+          <div class="report-header">
+            <div>
+              <div class="report-title">Q2 Revenue Summary</div>
+              <div class="report-subtitle">Apr 1 – Jun 30, 2026</div>
+            </div>
+            <div class="btn-group">
+              <button class="btn btn-secondary">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                Share
+              </button>
+              <button class="btn btn-primary" id="export-btn">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Export PDF
+              </button>
+            </div>
+          </div>
+
+          <div class="report-body">
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-label">Revenue</div>
+                <div class="stat-value" style="color:#191a1c;">$284,500</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Growth</div>
+                <div class="stat-value" style="color:#059669;">+18.2%</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Customers</div>
+                <div class="stat-value" style="color:#2563eb;">1,247</div>
+              </div>
+            </div>
+
+            <div class="chart-bars">
+              <div class="bar bar-old" style="height:38%;"></div>
+              <div class="bar bar-old" style="height:52%;"></div>
+              <div class="bar bar-old" style="height:42%;"></div>
+              <div class="bar bar-old" style="height:68%;"></div>
+              <div class="bar bar-old" style="height:62%;"></div>
+              <div class="bar bar-old" style="height:78%;"></div>
+              <div class="bar bar-new" style="height:58%;"></div>
+              <div class="bar bar-new" style="height:72%;"></div>
+              <div class="bar bar-new" style="height:88%;"></div>
+              <div class="bar bar-new" style="height:82%;"></div>
+              <div class="bar bar-new" style="height:94%;"></div>
+              <div class="bar bar-new" style="height:86%;"></div>
+            </div>
+            <div class="chart-labels">
+              <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Settings card -->
+        <div class="settings-card">
+          <div class="settings-title">Account Settings</div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-label">Email notifications</div>
+              <div class="settings-desc">Get notified when reports are ready</div>
+            </div>
+            <div class="toggle"></div>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-label">Auto-export</div>
+              <div class="settings-desc">Automatically export monthly reports</div>
+            </div>
+            <div class="toggle off"></div>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-label">Two-factor authentication</div>
+              <div class="settings-desc">Add extra security to your account</div>
+            </div>
+            <div class="toggle off"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-note" style="margin-top: 12px;">
+      This simulates a real SaaS app. Try clicking <strong>Export PDF</strong> — it's broken on Safari (intentionally). Use the Feedback tab to report it.
+    </div>
+  </div>
+
+  <!-- Config panel for demo customization -->
+  <div class="config-panel">
+    <div class="config-title">MakeThisBetter.init() Config</div>
+    <div class="config-field">
+      <label class="config-label">projectKey</label>
+      <input class="config-input" id="cfg-key" value="demo_proj_123" />
+    </div>
+    <div class="config-row">
+      <div style="flex:1;">
+        <label class="config-label">locale</label>
+        <select class="config-select" id="cfg-locale">
+          <option value="en">en</option>
+          <option value="zh-CN">zh-CN</option>
+        </select>
+      </div>
+      <div style="flex:1;">
+        <label class="config-label">position</label>
+        <select class="config-select" id="cfg-position">
+          <option value="right">right</option>
+          <option value="left">left</option>
+        </select>
+      </div>
+      <div style="flex:1;">
+        <label class="config-label">theme</label>
+        <select class="config-select" id="cfg-theme">
+          <option value="auto">auto</option>
+          <option value="light">light</option>
+          <option value="dark">dark</option>
+        </select>
+      </div>
+    </div>
+    <div class="config-field">
+      <label class="config-label">apiUrl (mock by default)</label>
+      <input class="config-input" id="cfg-api" value="/__mtb_mock/api/v1" placeholder="https://makethisbetter.dev/api/v1" />
+    </div>
+    <button class="config-btn" onclick="reinitWidget()">Reinitialize Widget</button>
+  </div>
+
+  <script type="module" src="./main.ts"></script>
+  <script type="module">
+    window.__MTB = MakeThisBetter
+    const originalFetch = window.fetch.bind(window)
+
+    window.fetch = async (input, init) => {
+      const url = typeof input === 'string' ? input : input.url
+
+      if (url.includes('/__mtb_mock/api/v1/widget/feedbacks')) {
+        const body = init?.body
+        if (body instanceof FormData) {
+          console.log('[MTB demo] Mock feedback payload:', {
+            description: body.get('feedback[description]'),
+            page_url: body.get('feedback[page_url]'),
+            browser: body.get('feedback[browser]'),
+            os: body.get('feedback[os]'),
+            console_errors: body.get('feedback[console_errors]'),
+            annotations: body.get('feedback[annotations]'),
+            target_element: body.get('feedback[target_element]'),
+            screenshot: body.get('feedback[screenshot]'),
+          })
+        }
+
+        return new Response(JSON.stringify({ id: 'fb_demo_1', status: 'open', project_id: 'proj_demo_1', messages: [], done: true }), {
+          status: 201,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      }
+
+      return originalFetch(input, init)
+    }
+
+    function reinitWidget() {
+      const key = document.getElementById('cfg-key').value || 'demo_proj_123'
+      const locale = document.getElementById('cfg-locale').value
+      const position = document.getElementById('cfg-position').value
+      const theme = document.getElementById('cfg-theme').value
+      const apiUrl = document.getElementById('cfg-api').value || undefined
+
+      MakeThisBetter.init({
+        projectKey: key,
+        locale,
+        position,
+        theme,
+        apiUrl,
+        user: { id: 'demo_user_1', name: 'Demo User', email: 'demo@example.com' },
+      })
+
+      console.log('[MTB] Reinitialized with:', { key, locale, position, theme, apiUrl })
+    }
+
+    window.reinitWidget = reinitWidget
+
+    // Initial mount
+    reinitWidget()
+
+    // Simulate a console error for demo
+    setTimeout(() => {
+      try {
+        throw new TypeError('blob.stream is not a function at export.js:42')
+      } catch (e) {
+        window.dispatchEvent(new ErrorEvent('error', {
+          message: e.message,
+          filename: 'export.js',
+          lineno: 42,
+          colno: 1,
+          error: e
+        }))
+      }
+    }, 500)
+  </script>
+</body>
+</html>
