@@ -133,8 +133,20 @@ export class ApiClient {
   }
 
   async startClarification(submissionSessionId: string, token: string, message?: string): Promise<ClarifyResponse> {
-    const body: Record<string, string> = {}
+    const body: Record<string, string | boolean> = {}
     if (message) body.message = message
+    return this.requestClarification(submissionSessionId, token, body)
+  }
+
+  async retryClarification(submissionSessionId: string, token: string): Promise<ClarifyResponse> {
+    return this.requestClarification(submissionSessionId, token, { retry: true })
+  }
+
+  private async requestClarification(
+    submissionSessionId: string,
+    token: string,
+    body: Record<string, string | boolean>,
+  ): Promise<ClarifyResponse> {
     const headers = await this.submissionHeaders(token, 'application/json')
     const res = await this.fetchWithRetry(`${this.apiUrl}/widget/feedback_submission_sessions/${submissionSessionId}/clarification`, {
       method: 'POST',

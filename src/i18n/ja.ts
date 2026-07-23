@@ -72,5 +72,6 @@ export default {
     send_feedback: 'フィードバックを送信',
     skip: 'スキップして送信',
     retry: '再試行',
+    error: 'AIによる確認に失敗しました。もう一度お試しください。',
   },
 }

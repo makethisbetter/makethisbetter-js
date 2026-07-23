@@ -72,5 +72,6 @@ export default {
     send_feedback: '피드백 보내기',
     skip: '건너뛰고 보내기',
     retry: '재시도',
+    error: 'AI 확인에 실패했습니다. 다시 시도해 주세요.',
   },
 }

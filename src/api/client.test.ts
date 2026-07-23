@@ -236,6 +236,24 @@ describe('ApiClient', () => {
     expect(result.messages).toEqual([])
   })
 
+  it('requests a retry for a failed clarification', async () => {
+    const jsonBody = JSON.stringify({ clarification: { status: 'processing', messages: [], done: false } })
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(jsonBody, { status: 202 }),
+    )
+
+    const client = new ApiClient('key', 'https://api.example.com')
+    await client.retryClarification('submission_1', 'secret')
+
+    expect(fetchSpy).toHaveBeenCalledWith(
+      'https://api.example.com/widget/feedback_submission_sessions/submission_1/clarification',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ retry: true }),
+      }),
+    )
+  })
+
   it('throws from streamClarification when the server does not stream', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(
       new Response(JSON.stringify({ done: false }), {

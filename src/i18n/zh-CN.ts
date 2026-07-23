@@ -72,5 +72,6 @@ export default {
     send_feedback: '发送反馈',
     skip: '跳过并发送',
     retry: '重试',
+    error: 'AI 澄清失败，请重试。',
   },
 }

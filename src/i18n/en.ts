@@ -72,5 +72,6 @@ export default {
     send_feedback: 'Send feedback',
     skip: 'Skip & send',
     retry: 'Retry',
+    error: 'AI clarification failed. Please try again.',
   },
 }

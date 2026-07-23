@@ -72,5 +72,6 @@ export default {
     send_feedback: 'Enviar comentario',
     skip: 'Omitir y enviar',
     retry: 'Reintentar',
+    error: 'No se pudo completar la aclaración con IA. Inténtalo de nuevo.',
   },
 }

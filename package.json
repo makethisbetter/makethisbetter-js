@@ -1,6 +1,6 @@
 {
   "name": "makethisbetter",
-  "version": "1.10.0",
+  "version": "1.10.1",
   "description": "Make This Better JS Widget SDK — embed user feedback collection in any website",
   "type": "module",
   "main": "./dist/makethisbetter.cjs",

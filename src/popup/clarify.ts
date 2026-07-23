@@ -1,7 +1,7 @@
 import type { ShadowContainer } from '../widget/shadow'
 import type { I18nMessages } from '../i18n'
 import type { ApiClient, ClarifyStreamResult } from '../api/client'
-import type { ClarifyMessage } from '../types'
+import type { ClarifyMessage, ClarifyResponse } from '../types'
 import { escapeHtml } from '../context/dom-utils'
 
 const POLL_INTERVAL_MS = 2000
@@ -67,9 +67,6 @@ export class ClarifyCard {
     }
 
     this.messagesEl = this.el.querySelector('.mtb-clarify-messages')!
-    this.inputEl = this.el.querySelector('.mtb-clarify-input')!
-    this.sendBtn = this.el.querySelector('.mtb-clarify-send')!
-
     this.bindEvents()
     this.startConversation()
   }
@@ -126,29 +123,35 @@ export class ClarifyCard {
         </button>
       </div>
       <div class="mtb-clarify-messages"></div>
-      <div class="mtb-clarify-footer">
-        <textarea class="mtb-clarify-input" rows="1" placeholder="${escapeHtml(m.clarify.placeholder)}"></textarea>
-        <div class="mtb-clarify-actions">
-          <button class="mtb-clarify-skip" type="button">${escapeHtml(m.clarify.skip)}</button>
-          <button class="mtb-clarify-send" type="button" disabled>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="22" y1="2" x2="11" y2="13"/>
-              <polygon points="22 2 15 22 11 13 2 9 22 2"/>
-            </svg>
-            <span>${escapeHtml(m.clarify.send)}</span>
-          </button>
-        </div>
+      <div class="mtb-clarify-footer">${this.buildConversationControls(m)}</div>
+    `
+  }
+
+  private buildConversationControls(m: I18nMessages): string {
+    return `
+      <textarea class="mtb-clarify-input" rows="1" placeholder="${escapeHtml(m.clarify.placeholder)}"></textarea>
+      <div class="mtb-clarify-actions">
+        <button class="mtb-clarify-skip" type="button">${escapeHtml(m.clarify.skip)}</button>
+        <button class="mtb-clarify-send" type="button" disabled>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"/>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+          <span>${escapeHtml(m.clarify.send)}</span>
+        </button>
       </div>
     `
   }
 
   private bindEvents(): void {
-    const skip = () => {
-      this.stopPolling()
-      void this.finalize()
-    }
-    this.el.querySelector('.mtb-clarify-skip')!.addEventListener('click', skip)
-    this.el.querySelector('.mtb-clarify-close')!.addEventListener('click', skip)
+    this.el.querySelector('.mtb-clarify-close')!.addEventListener('click', () => this.skipAndFinalize())
+    this.bindConversationControls()
+  }
+
+  private bindConversationControls(): void {
+    this.inputEl = this.el.querySelector('.mtb-clarify-input')!
+    this.sendBtn = this.el.querySelector('.mtb-clarify-send')!
+    this.el.querySelector('.mtb-clarify-skip')!.addEventListener('click', () => this.skipAndFinalize())
 
     this.inputEl.addEventListener('input', () => {
       this.sendBtn.disabled = !this.inputEl.value.trim()
@@ -165,11 +168,14 @@ export class ClarifyCard {
     this.sendBtn.addEventListener('click', () => this.sendMessage())
   }
 
+  private skipAndFinalize(): void {
+    this.stopPolling()
+    void this.finalize()
+  }
+
   private async startConversation(): Promise<void> {
     if (this.preloadedResult) {
-      this.renderConversation(this.preloadedResult.messages, this.preloadedResult.done)
-      if (this.preloadedResult.failed) this.handleFailure()
-      else if (this.preloadedResult.done) this.handleDone()
+      this.applyResult(this.preloadedResult)
       return
     }
 
@@ -179,10 +185,7 @@ export class ClarifyCard {
         const result = await this.pendingClarification
         if (this.destroyed) return
         if (result) {
-          this.renderConversation(result.messages, result.done)
-          if (result.failed) this.handleFailure()
-          else if (result.done) this.handleDone()
-          else this.startPolling()
+          if (!this.applyResult(result)) this.startPolling()
         } else {
           await this.runInitialTurnViaPolling()
         }
@@ -237,10 +240,7 @@ export class ClarifyCard {
       )
       if (this.destroyed) return
       this.endStreamingBubble()
-      this.renderConversation(result.messages, result.done)
-      if (result.failed) this.handleFailure()
-      else if (result.done) this.handleDone()
-      else this.startPolling()
+      if (!this.applyResult(result)) this.startPolling()
     } catch {
       if (this.destroyed) return
       this.endStreamingBubble()
@@ -255,13 +255,10 @@ export class ClarifyCard {
         this.submissionToken,
       )
       if (this.destroyed) return
-      this.renderConversation(res.messages, res.done)
-      if (res.status === 'failed') this.handleFailure()
-      else if (res.done) this.handleDone()
-      else this.startPolling()
+      if (!this.applyResult(res)) this.startPolling()
     } catch {
       if (this.destroyed) return
-      this.handleDone()
+      this.handleFailure()
     }
   }
 
@@ -272,10 +269,7 @@ export class ClarifyCard {
       message,
     )
     if (this.destroyed) return
-    this.renderConversation(res.messages, res.done)
-    if (res.status === 'failed') this.handleFailure()
-    else if (res.done) this.handleDone()
-    else this.startPolling()
+    if (!this.applyResult(res)) this.startPolling()
   }
 
   private showError(): void {
@@ -321,7 +315,7 @@ export class ClarifyCard {
   private async poll(): Promise<void> {
     if (Date.now() > this.pollDeadline) {
       this.stopPolling()
-      this.handleDone()
+      this.handleFailure()
       return
     }
     try {
@@ -330,18 +324,11 @@ export class ClarifyCard {
         this.submissionToken,
       )
       if (this.destroyed) return
-      this.renderConversation(res.messages, res.done)
-      if (res.status === 'failed') {
-        this.stopPolling()
-        this.handleFailure()
-      } else if (res.done) {
-        this.stopPolling()
-        this.handleDone()
-      }
+      if (this.applyResult(res)) this.stopPolling()
     } catch {
       if (this.destroyed) return
       this.stopPolling()
-      this.handleDone()
+      this.handleFailure()
     }
   }
 
@@ -358,8 +345,73 @@ export class ClarifyCard {
     this.done = true
     this.stopPolling()
     this.removeThinking()
-    this.showFinalizeButton()
-    this.showError()
+    this.showClarificationFailureActions()
+  }
+
+  private showClarificationFailureActions(): void {
+    const footer = this.el.querySelector('.mtb-clarify-footer')!
+    footer.innerHTML = `
+      <div class="mtb-clarify-error">${escapeHtml(this.i18n.clarify.error)}</div>
+      <div class="mtb-clarify-actions">
+        <button class="mtb-clarify-fallback" type="button">${escapeHtml(this.i18n.clarify.send_feedback)}</button>
+        <button class="mtb-clarify-retry" type="button">${escapeHtml(this.i18n.clarify.retry)}</button>
+      </div>
+    `
+    footer.querySelector('.mtb-clarify-fallback')!.addEventListener('click', () => this.skipAndFinalize())
+    footer.querySelector('.mtb-clarify-retry')!.addEventListener('click', () => {
+      if (!this.destroyed) void this.retryClarification()
+    })
+  }
+
+  private async retryClarification(): Promise<void> {
+    if (this.sending || this.destroyed) return
+
+    this.sending = true
+    this.done = false
+    this.showConversationControls()
+    this.inputEl.disabled = true
+    this.sendBtn.disabled = true
+    this.renderConversation(this.lastMessages, false)
+
+    try {
+      const snapshot = await this.apiClient.getClarification(this.submissionSessionId, this.submissionToken)
+      let result = snapshot
+      if (snapshot.status === 'failed') {
+        result = await this.apiClient.retryClarification(this.submissionSessionId, this.submissionToken)
+      } else if (snapshot.status === 'pending') {
+        result = await this.apiClient.startClarification(this.submissionSessionId, this.submissionToken)
+      }
+      if (this.destroyed) return
+      if (!this.applyResult(result)) {
+        this.showConversationControls()
+        this.startPolling()
+      }
+    } catch {
+      if (this.destroyed) return
+      this.handleFailure()
+    } finally {
+      this.sending = false
+    }
+  }
+
+  private showConversationControls(): void {
+    const footer = this.el.querySelector('.mtb-clarify-footer')!
+    footer.innerHTML = this.buildConversationControls(this.i18n)
+    this.bindConversationControls()
+  }
+
+  private applyResult(result: ClarifyStreamResult | ClarifyResponse): boolean {
+    this.renderConversation(result.messages, result.done)
+    const failed = 'status' in result ? result.status === 'failed' : result.failed === true
+    if (failed) {
+      this.handleFailure()
+      return true
+    }
+    if (result.done) {
+      this.handleDone()
+      return true
+    }
+    return false
   }
 
   private showFinalizeButton(): void {
@@ -396,7 +448,7 @@ export class ClarifyCard {
 
   private showRetryButton(): void {
     const footer = this.el.querySelector('.mtb-clarify-footer')!
-    footer.innerHTML = `<button class="mtb-clarify-retry" type="button">${escapeHtml(this.i18n.clarify.retry)}</button>`
+    footer.innerHTML = `<button class="mtb-clarify-send-feedback mtb-clarify-retry" type="button">${escapeHtml(this.i18n.clarify.retry)}</button>`
     footer.querySelector('.mtb-clarify-retry')!.addEventListener('click', () => {
       if (!this.destroyed) void this.finalize()
     })

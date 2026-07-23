@@ -72,5 +72,6 @@ export default {
     send_feedback: 'Feedback senden',
     skip: 'Überspringen & senden',
     retry: 'Erneut versuchen',
+    error: 'Die KI-Klärung ist fehlgeschlagen. Bitte erneut versuchen.',
   },
 }

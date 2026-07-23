@@ -17,6 +17,11 @@ function mockApiClient(overrides: Partial<ApiClient> = {}): ApiClient {
       messages: [{ role: 'assistant', content: 'Can you tell me more?' }],
       done: false,
     } satisfies ClarifyResponse),
+    retryClarification: vi.fn().mockResolvedValue({
+      status: 'pending',
+      messages: [{ role: 'assistant', content: 'Can you tell me more?' }],
+      done: false,
+    } satisfies ClarifyResponse),
     ...overrides,
   } as unknown as ApiClient
 }
@@ -475,9 +480,47 @@ describe('ClarifyCard', () => {
     })
     await vi.advanceTimersByTimeAsync(0)
 
-    expect(shadow.root.querySelector('.mtb-clarify-error')?.textContent).toBe(messages.error.submit)
-    expect(shadow.root.querySelector('.mtb-clarify-send-feedback')).toBeTruthy()
+    expect(shadow.root.querySelector('.mtb-clarify-error')?.textContent).toBe(messages.clarify.error)
+    expect(shadow.root.querySelector('.mtb-clarify-fallback')?.textContent).toBe(messages.clarify.send_feedback)
     expect(onFinalize).not.toHaveBeenCalled()
+
+    card.destroy()
+    shadow.destroy()
+  })
+
+  it('retries a failed clarification and restores the conversation controls', async () => {
+    const startClarification = vi.fn().mockResolvedValue({
+      status: 'failed',
+      messages: [],
+      done: true,
+    } satisfies ClarifyResponse)
+    const retryClarification = vi.fn().mockResolvedValue({
+      status: 'awaiting_response',
+      messages: [{ role: 'assistant', content: 'What were you trying to export?' }],
+      done: false,
+    } satisfies ClarifyResponse)
+    const getClarification = vi.fn().mockResolvedValue({
+      status: 'failed',
+      messages: [],
+      done: true,
+    } satisfies ClarifyResponse)
+
+    const { shadow, card } = setupCard({ startClarification, getClarification, retryClarification })
+    await vi.waitFor(() => {
+      expect(shadow.root.querySelector('.mtb-clarify-error')).toBeTruthy()
+    })
+
+    shadow.root.querySelector<HTMLButtonElement>('.mtb-clarify-retry')!.click()
+    await vi.waitFor(() => {
+      expect(getClarification).toHaveBeenCalledWith('submission_123', 'submission-secret')
+      expect(retryClarification).toHaveBeenCalledWith('submission_123', 'submission-secret')
+    })
+
+    await vi.waitFor(() => {
+      expect(shadow.root.querySelector('.mtb-clarify-error')).toBeNull()
+      expect(shadow.root.querySelector('.mtb-clarify-input')).toBeTruthy()
+      expect(shadow.root.querySelector('.mtb-clarify-ai')?.textContent).toBe('What were you trying to export?')
+    })
 
     card.destroy()
     shadow.destroy()
@@ -512,7 +555,7 @@ describe('ClarifyCard', () => {
     shadow.destroy()
   })
 
-  it('waits for confirmation on startClarification error', async () => {
+  it('shows retry actions on startClarification error', async () => {
     const startClarification = vi.fn().mockRejectedValue(new Error('Network error'))
 
     const { shadow, card, onFinalize } = setupCard({ startClarification })
@@ -521,8 +564,9 @@ describe('ClarifyCard', () => {
     })
     await vi.advanceTimersByTimeAsync(0)
 
-    const sendFeedback = shadow.root.querySelector<HTMLButtonElement>('.mtb-clarify-send-feedback')!
-    expect(sendFeedback).toBeTruthy()
+    const sendFeedback = shadow.root.querySelector<HTMLButtonElement>('.mtb-clarify-fallback')!
+    expect(shadow.root.querySelector('.mtb-clarify-error')).toBeTruthy()
+    expect(shadow.root.querySelector('.mtb-clarify-retry')).toBeTruthy()
     expect(onFinalize).not.toHaveBeenCalled()
     sendFeedback.click()
     expect(onFinalize).toHaveBeenCalledOnce()
@@ -697,7 +741,7 @@ describe('ClarifyCard', () => {
     shadow.destroy()
   })
 
-  it('waits for confirmation when polling exceeds the timeout with no reply', async () => {
+  it('shows retry actions when polling exceeds the timeout with no reply', async () => {
     const getClarification = vi.fn().mockResolvedValue({
       status: 'pending',
       messages: [],
@@ -710,13 +754,26 @@ describe('ClarifyCard', () => {
     })
     await vi.advanceTimersByTimeAsync(0)
 
-    // Poll past the 45s deadline; the card should give up and let the reporter confirm.
+    // Poll past the 45s deadline; the card should surface the failure instead of
+    // presenting the conversation as successfully completed.
     await vi.advanceTimersByTimeAsync(48000)
-    const sendFeedback = shadow.root.querySelector<HTMLButtonElement>('.mtb-clarify-send-feedback')!
-    expect(sendFeedback).toBeTruthy()
+    expect(shadow.root.querySelector('.mtb-clarify-error')).toBeTruthy()
+    expect(shadow.root.querySelector('.mtb-clarify-retry')).toBeTruthy()
     expect(onFinalize).not.toHaveBeenCalled()
-    sendFeedback.click()
-    expect(onFinalize).toHaveBeenCalledOnce()
+
+    card.destroy()
+    shadow.destroy()
+  })
+
+  it('shows retry actions when polling fails', async () => {
+    const getClarification = vi.fn().mockRejectedValue(new Error('Network error'))
+
+    const { shadow, card, onFinalize } = setupCard({ getClarification })
+    await vi.advanceTimersByTimeAsync(2000)
+
+    expect(shadow.root.querySelector('.mtb-clarify-error')).toBeTruthy()
+    expect(shadow.root.querySelector('.mtb-clarify-retry')).toBeTruthy()
+    expect(onFinalize).not.toHaveBeenCalled()
 
     card.destroy()
     shadow.destroy()

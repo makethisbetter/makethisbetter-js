@@ -1164,7 +1164,8 @@
   margin-top: 6px;
 }
 
-.mtb-clarify-skip {
+.mtb-clarify-skip,
+.mtb-clarify-fallback {
   flex: 0 0 auto;
   height: 30px;
   padding: 0 12px;
@@ -1180,11 +1181,13 @@
   transition: background 0.12s;
 }
 
-.mtb-clarify-skip:hover {
+.mtb-clarify-skip:hover,
+.mtb-clarify-fallback:hover {
   background: rgba(0, 0, 0, 0.04);
 }
 
-.mtb-clarify-send {
+.mtb-clarify-send,
+.mtb-clarify-retry {
   flex: 1;
   height: 30px;
   display: inline-flex;
@@ -1202,11 +1205,13 @@
   transition: background 0.12s;
 }
 
-.mtb-clarify-send:not(:disabled):hover {
+.mtb-clarify-send:not(:disabled):hover,
+.mtb-clarify-retry:not(:disabled):hover {
   background: #047857;
 }
 
-.mtb-clarify-send:disabled {
+.mtb-clarify-send:disabled,
+.mtb-clarify-retry:disabled {
   background: rgba(0, 0, 0, 0.15);
   cursor: not-allowed;
 }
@@ -1272,13 +1277,15 @@
   color: rgba(255, 255, 255, 0.75);
 }
 
-:host([data-mtb-theme="dark"]) .mtb-clarify-skip {
+:host([data-mtb-theme="dark"]) .mtb-clarify-skip,
+:host([data-mtb-theme="dark"]) .mtb-clarify-fallback {
   background: #1f2327;
   border-color: rgba(255, 255, 255, 0.14);
   color: rgba(255, 255, 255, 0.7);
 }
 
-:host([data-mtb-theme="dark"]) .mtb-clarify-skip:hover {
+:host([data-mtb-theme="dark"]) .mtb-clarify-skip:hover,
+:host([data-mtb-theme="dark"]) .mtb-clarify-fallback:hover {
   background: rgba(255, 255, 255, 0.06);
 }
 
@@ -1321,13 +1328,15 @@
     color: rgba(255, 255, 255, 0.75);
   }
 
-  :host([data-mtb-theme="auto"]) .mtb-clarify-skip {
+  :host([data-mtb-theme="auto"]) .mtb-clarify-skip,
+  :host([data-mtb-theme="auto"]) .mtb-clarify-fallback {
     background: #1f2327;
     border-color: rgba(255, 255, 255, 0.14);
     color: rgba(255, 255, 255, 0.7);
   }
 
-  :host([data-mtb-theme="auto"]) .mtb-clarify-skip:hover {
+  :host([data-mtb-theme="auto"]) .mtb-clarify-skip:hover,
+  :host([data-mtb-theme="auto"]) .mtb-clarify-fallback:hover {
     background: rgba(255, 255, 255, 0.06);
   }
 

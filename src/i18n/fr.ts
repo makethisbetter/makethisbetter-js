@@ -72,5 +72,6 @@ export default {
     send_feedback: 'Envoyer le retour',
     skip: 'Ignorer et envoyer',
     retry: 'Réessayer',
+    error: 'La clarification par IA a échoué. Réessayez.',
   },
 }
