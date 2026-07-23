@@ -1,0 +1,1547 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:host {
+  all: initial;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #191a1c;
+  -webkit-font-smoothing: antialiased;
+}
+
+:host([data-mtb-theme="dark"]) .mtb-popup,
+:host([data-mtb-theme="dark"]) .mtb-success {
+  background: #151719;
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #f9fafb;
+}
+
+:host([data-mtb-theme="dark"]) .mtb-popup-header {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+:host([data-mtb-theme="dark"]) .mtb-popup-title,
+:host([data-mtb-theme="dark"]) .mtb-success-title {
+  color: #f9fafb;
+}
+
+:host([data-mtb-theme="dark"]) .mtb-quick-option,
+:host([data-mtb-theme="dark"]) .mtb-textarea {
+  background: #1f2327;
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #f9fafb;
+}
+
+:host([data-mtb-theme="dark"]) .mtb-popup-close,
+:host([data-mtb-theme="dark"]) .mtb-success-msg,
+:host([data-mtb-theme="dark"]) .mtb-close-link {
+  color: rgba(255, 255, 255, 0.68);
+}
+
+@media (prefers-color-scheme: dark) {
+  :host([data-mtb-theme="auto"]) .mtb-popup,
+  :host([data-mtb-theme="auto"]) .mtb-success {
+    background: #151719;
+    border-color: rgba(255, 255, 255, 0.12);
+    color: #f9fafb;
+  }
+
+  :host([data-mtb-theme="auto"]) .mtb-popup-header {
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+  }
+
+  :host([data-mtb-theme="auto"]) .mtb-popup-title,
+  :host([data-mtb-theme="auto"]) .mtb-success-title {
+    color: #f9fafb;
+  }
+
+  :host([data-mtb-theme="auto"]) .mtb-quick-option,
+  :host([data-mtb-theme="auto"]) .mtb-textarea {
+    background: #1f2327;
+    border-color: rgba(255, 255, 255, 0.12);
+    color: #f9fafb;
+  }
+
+  :host([data-mtb-theme="auto"]) .mtb-popup-close,
+  :host([data-mtb-theme="auto"]) .mtb-success-msg,
+  :host([data-mtb-theme="auto"]) .mtb-close-link {
+    color: rgba(255, 255, 255, 0.68);
+  }
+}
+
+/* ===== Side Tab ===== */
+.mtb-tab {
+  position: fixed;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  z-index: 2147483646;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  padding: 14px 0;
+  background: #059669;
+  color: #fff;
+  border-radius: 8px 0 0 8px;
+  cursor: pointer;
+  box-shadow: -2px 0 14px rgba(5, 150, 105, 0.35);
+  transition: background 0.15s, box-shadow 0.15s, width 0.15s;
+  writing-mode: vertical-lr;
+  text-orientation: mixed;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  user-select: none;
+  border: none;
+  outline: none;
+}
+
+.mtb-tab.left {
+  right: auto;
+  left: 0;
+  border-radius: 0 8px 8px 0;
+  box-shadow: 2px 0 14px rgba(5, 150, 105, 0.35);
+}
+
+.mtb-tab:hover {
+  background: #047857;
+  box-shadow: -3px 0 20px rgba(5, 150, 105, 0.45);
+}
+
+.mtb-tab.active {
+  background: #065f46;
+}
+
+/* ===== Toolbar ===== */
+.mtb-toolbar {
+  position: fixed;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2147483647;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  height: 46px;
+  padding: 0 7px;
+  border-radius: 13px;
+  background: linear-gradient(120deg, #10b981, #059669);
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.22);
+  animation: mtbBarIn 0.2s ease;
+  white-space: nowrap;
+  transition: opacity 0.15s ease;
+}
+
+@keyframes mtbBarIn {
+  from { transform: translate(-50%, 12px); opacity: 0; }
+  to   { transform: translate(-50%, 0); opacity: 1; }
+}
+
+.mtb-toolbar-faded {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.mtb-toolbar-modes {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 9px;
+  padding: 3px;
+}
+
+.mtb-toolbar-mode-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 7px;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 550;
+  white-space: nowrap;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.95);
+  transition: all 0.12s;
+}
+
+.mtb-toolbar-mode-btn.active {
+  background: #fff;
+  color: #047857;
+}
+
+.mtb-toolbar-hint {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.95);
+  white-space: nowrap;
+}
+
+.mtb-toolbar-sep {
+  width: 1px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.mtb-exit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 8px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: #fff;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.16);
+  border: none;
+  font-family: inherit;
+  transition: background 0.12s;
+}
+
+.mtb-exit-btn:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+@media (max-width: 480px) {
+  .mtb-toolbar {
+    max-width: calc(100vw - 16px);
+    gap: 6px;
+  }
+
+  .mtb-toolbar-hint,
+  .mtb-toolbar-sep {
+    display: none;
+  }
+
+  .mtb-toolbar-mode-btn,
+  .mtb-exit-btn {
+    padding-right: 10px;
+    padding-left: 10px;
+  }
+}
+
+/* ===== Overlay ===== */
+.mtb-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483640;
+  cursor: crosshair;
+}
+
+.mtb-dim {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483639;
+  background: rgba(0, 0, 0, 0.08);
+}
+
+/* ===== Highlight ===== */
+.mtb-highlight {
+  position: fixed;
+  z-index: 2147483641;
+  pointer-events: none;
+  border: 2px solid #10b981;
+  border-radius: 6px;
+  background: rgba(16, 185, 129, 0.06);
+  transition: all 0.08s ease;
+}
+
+.mtb-highlight.selected {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.04);
+}
+
+.mtb-highlight-tooltip {
+  position: fixed;
+  z-index: 2147483642;
+  pointer-events: none;
+  transform: translate(-50%, -100%);
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: #064e3b;
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.mtb-highlight-tooltip.below {
+  transform: translate(-50%, 0);
+}
+
+.mtb-highlight-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-top-color: #064e3b;
+}
+
+.mtb-highlight-tooltip.below::after {
+  top: auto;
+  bottom: 100%;
+  border-top-color: transparent;
+  border-bottom-color: #064e3b;
+}
+
+/* ===== Draw SVG ===== */
+.mtb-draw-svg {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483643;
+  pointer-events: none;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* ===== Pin ===== */
+.mtb-pin {
+  position: fixed;
+  z-index: 2147483644;
+  pointer-events: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50% 50% 50% 2px;
+  background: #059669;
+  border: 2px solid #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.45);
+  animation: mtbPinPop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform: translate(-50%, -50%);
+}
+
+@keyframes mtbPinPop {
+  from { transform: translate(-50%, -50%) scale(0.4); }
+  to   { transform: translate(-50%, -50%) scale(1); }
+}
+
+/* ===== Comment Popup ===== */
+.mtb-popup {
+  position: fixed;
+  z-index: 2147483645;
+  display: flex;
+  flex-direction: column;
+  width: min(320px, calc(100vw - 56px));
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.24);
+  overflow: hidden;
+  animation: mtbSlideUp 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+@keyframes mtbSlideUp {
+  from { transform: translateY(14px) scale(0.97); opacity: 0; }
+  to   { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.mtb-popup-header {
+  flex-shrink: 0;
+  padding: 11px 13px 11px 14px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mtb-popup-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
+  background: rgba(16, 185, 129, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.mtb-popup-title {
+  flex: 1;
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #191a1c;
+}
+
+.mtb-popup-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 3px;
+  color: rgba(0, 0, 0, 0.38);
+  display: flex;
+  align-items: center;
+  border-radius: 4px;
+  transition: color 0.12s;
+}
+
+.mtb-popup-close:hover {
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.mtb-popup-body {
+  min-height: 0;
+  padding: 13px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.mtb-quick-options {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.mtb-quick-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid rgba(0, 0, 0, 0.09);
+  border-radius: 10px;
+  background: #fafafa;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  color: #191a1c;
+  text-align: left;
+  transition: all 0.12s;
+}
+
+.mtb-quick-option:hover {
+  background: rgba(16, 185, 129, 0.06);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.mtb-quick-option.selected {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.5);
+}
+
+.mtb-quick-option-emoji {
+  font-size: 15px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.mtb-textarea-wrap {
+  position: relative;
+}
+
+.mtb-textarea {
+  width: 100%;
+  height: 64px;
+  padding: 9px 11px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #191a1c;
+  outline: none;
+  background: #fff;
+  resize: none;
+  transition: border-color 0.12s, box-shadow 0.12s;
+}
+
+.mtb-textarea:focus {
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+}
+
+.mtb-textarea::placeholder {
+  color: rgba(0, 0, 0, 0.34);
+}
+
+.mtb-popup-error {
+  margin-top: 8px;
+  color: #DC2626;
+  font-size: 11.5px;
+}
+
+.mtb-popup-error:empty,
+.mtb-popup-error[hidden] {
+  display: none;
+}
+
+.mtb-popup-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.mtb-cancel-btn,
+.mtb-submit-btn {
+  min-width: 72px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12px;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  transition: background 0.12s;
+}
+
+.mtb-cancel-btn {
+  background: #f3f4f6;
+  color: rgba(0, 0, 0, 0.68);
+}
+
+.mtb-cancel-btn:hover {
+  background: #e5e7eb;
+}
+
+.mtb-submit-btn {
+  background: #d1d5db;
+  color: #fff;
+}
+
+.mtb-submit-btn.ready {
+  background: #059669;
+}
+
+.mtb-submit-btn.ready:hover {
+  background: #047857;
+}
+
+.mtb-submit-btn.loading {
+  background: #059669;
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.mtb-submit-btn:disabled {
+  cursor: not-allowed;
+}
+
+/* ===== Success / Error States ===== */
+.mtb-success {
+  position: fixed;
+  z-index: 2147483645;
+  width: 332px;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.24);
+  padding: 24px 22px;
+  text-align: center;
+  animation: mtbSlideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.mtb-success-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: rgba(5, 150, 105, 0.09);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+}
+
+.mtb-success-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 5px;
+  letter-spacing: -0.01em;
+  color: #191a1c;
+}
+
+.mtb-success-msg {
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.55);
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+
+.mtb-view-feedback-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #047857;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: 'JetBrains Mono', monospace;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: text-decoration 0.12s;
+}
+
+.mtb-view-feedback-link:hover {
+  text-decoration: underline;
+}
+
+.mtb-close-link {
+  margin-top: 13px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.4);
+  font-family: inherit;
+  transition: color 0.12s;
+}
+
+.mtb-close-link:hover {
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.mtb-email-capture {
+  margin-bottom: 14px;
+  text-align: left;
+}
+
+.mtb-email-prompt {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.55);
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.mtb-email-row {
+  display: flex;
+  gap: 6px;
+}
+
+.mtb-email-input {
+  flex: 1;
+  min-width: 0;
+  font-size: 12.5px;
+  font-family: inherit;
+  padding: 7px 10px;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  border-radius: 8px;
+  outline: none;
+}
+
+.mtb-email-input:focus {
+  border-color: #059669;
+}
+
+.mtb-email-input.mtb-email-invalid {
+  border-color: #dc2626;
+}
+
+.mtb-email-submit {
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  color: #fff;
+  background: #059669;
+  border: none;
+  border-radius: 8px;
+  padding: 7px 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.mtb-email-submit:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.mtb-email-error {
+  font-size: 11.5px;
+  color: #dc2626;
+  margin-top: 6px;
+}
+
+.mtb-email-saved {
+  font-size: 12px;
+  color: #059669;
+  line-height: 1.5;
+}
+
+.mtb-my-feedback {
+  display: block;
+  margin: 8px auto 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 11.5px;
+  font-family: inherit;
+  color: rgba(0, 0, 0, 0.4);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.12s;
+}
+
+.mtb-my-feedback:hover {
+  color: #059669;
+}
+
+/* ===== Pet Entry ===== */
+.mtb-pet {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 2147483646;
+  cursor: pointer;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: transparent;
+  animation: mtbPetBounce 3s ease-in-out infinite;
+  transition: transform 0.2s;
+  user-select: none;
+  outline: none;
+  filter: drop-shadow(0 4px 12px rgba(5, 150, 105, 0.35));
+}
+
+.mtb-pet:hover {
+  transform: scale(1.12);
+  animation-play-state: paused;
+}
+
+.mtb-pet:hover .mtb-pet-bubble {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+
+.mtb-pet.active {
+  animation: none;
+  opacity: 0.6;
+}
+
+.mtb-pet-svg {
+  display: block;
+}
+
+@keyframes mtbPetBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.mtb-pet-bubble {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  margin-bottom: 8px;
+  background: #064e3b;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.mtb-pet-bubble.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+
+.mtb-pet-bubble.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.mtb-pet-bubble::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #064e3b;
+}
+
+/* ===== Frustration Prompt ===== */
+.mtb-frustration-prompt {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 2147483645;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  animation: mtbSlideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+:host([data-mtb-theme="dark"]) .mtb-frustration-prompt {
+  background: #151719;
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #f9fafb;
+}
+
+@media (prefers-color-scheme: dark) {
+  :host([data-mtb-theme="auto"]) .mtb-frustration-prompt {
+    background: #151719;
+    border-color: rgba(255, 255, 255, 0.12);
+    color: #f9fafb;
+  }
+}
+
+.mtb-frustration-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(234, 179, 8, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.mtb-frustration-text {
+  font-size: 13px;
+  font-weight: 500;
+  color: inherit;
+  line-height: 1.4;
+}
+
+.mtb-frustration-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.mtb-frustration-tell {
+  height: 28px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 7px;
+  background: #059669;
+  color: #fff;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  transition: background 0.12s;
+}
+
+.mtb-frustration-tell:hover {
+  background: #047857;
+}
+
+.mtb-frustration-dismiss {
+  height: 28px;
+  padding: 0 8px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  transition: color 0.12s;
+}
+
+.mtb-frustration-dismiss:hover {
+  color: rgba(0, 0, 0, 0.7);
+}
+
+:host([data-mtb-theme="dark"]) .mtb-frustration-dismiss {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+:host([data-mtb-theme="dark"]) .mtb-frustration-dismiss:hover {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+@media (prefers-color-scheme: dark) {
+  :host([data-mtb-theme="auto"]) .mtb-frustration-dismiss {
+    color: rgba(255, 255, 255, 0.4);
+  }
+  :host([data-mtb-theme="auto"]) .mtb-frustration-dismiss:hover {
+    color: rgba(255, 255, 255, 0.7);
+  }
+}
+
+/* ===== Record Control Bar ===== */
+.mtb-record-bar {
+  position: fixed;
+  bottom: 48px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2147483647;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 42px;
+  padding: 0 8px 0 14px;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.92);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  animation: mtbBarIn 0.2s ease;
+}
+
+.mtb-record-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ef4444;
+  animation: mtbRecordPulse 1.2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes mtbRecordPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.mtb-record-timer {
+  font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  font-size: 13px;
+  font-weight: 500;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  min-width: 38px;
+}
+
+.mtb-record-stop {
+  height: 28px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 7px;
+  background: #059669;
+  color: #fff;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  transition: background 0.12s;
+}
+
+.mtb-record-stop:hover {
+  background: #047857;
+}
+
+/* ===== Click Ripple ===== */
+.mtb-click-ripple {
+  position: fixed;
+  z-index: 2147483644;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid #10b981;
+  background: rgba(16, 185, 129, 0.2);
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(0.5);
+  animation: mtbClickRipple 0.3s ease-out forwards;
+}
+
+@keyframes mtbClickRipple {
+  0% {
+    transform: translate(-50%, -50%) scale(0.5);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2);
+    opacity: 0;
+  }
+}
+
+/* Loading dots */
+.mtb-dot {
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #fff;
+  animation: mtbDot 1.2s infinite;
+}
+
+.mtb-dot:nth-child(2) { animation-delay: 0.2s; }
+.mtb-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes mtbDot {
+  0%, 80%, 100% { opacity: 0.3; transform: translateY(0); }
+  40% { opacity: 1; transform: translateY(-3px); }
+}
+
+/* ===== Clarify Card ===== */
+.mtb-clarify {
+  position: fixed;
+  z-index: 2147483645;
+  width: min(346px, calc(100vw - 56px));
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.24);
+  display: flex;
+  flex-direction: column;
+  animation: mtbSlideUp 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  overflow: hidden;
+}
+
+.mtb-clarify-continuation {
+  width: min(320px, calc(100vw - 56px));
+  animation: none;
+}
+
+.mtb-clarify-header {
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.mtb-clarify-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  background: linear-gradient(140deg, #10b981, #059669);
+  box-shadow: 0 1px 3px rgba(5, 150, 105, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.mtb-clarify-titles {
+  flex: 1;
+  min-width: 0;
+}
+
+.mtb-clarify-title {
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.2;
+  color: #191a1c;
+}
+
+.mtb-clarify-subtitle {
+  font-size: 9.5px;
+  color: rgba(0, 0, 0, 0.42);
+}
+
+.mtb-clarify-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 3px;
+  color: rgba(0, 0, 0, 0.38);
+  display: flex;
+  transition: color 0.12s;
+}
+
+.mtb-clarify-close:hover {
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.mtb-clarify-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 10px 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mtb-clarify-bubble {
+  max-width: 82%;
+  padding: 6px 10px;
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.mtb-clarify-ai {
+  align-self: flex-start;
+  background: #ffffff;
+  color: #191a1c;
+  border: 1px solid rgba(0, 0, 0, 0.09);
+  border-radius: 11px 11px 11px 3px;
+}
+
+.mtb-clarify-user {
+  align-self: flex-end;
+  background: #059669;
+  color: #fff;
+  border: 1px solid #059669;
+  border-radius: 11px 11px 3px 11px;
+}
+
+.mtb-clarify-thinking {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+}
+
+.mtb-clarify-thinking .mtb-dot {
+  width: 6px;
+  height: 6px;
+  background: rgba(5, 150, 105, 0.7);
+}
+
+.mtb-clarify-footer {
+  padding: 3px 10px 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.mtb-clarify-input {
+  width: 100%;
+  height: 40px;
+  padding: 7px 10px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #191a1c;
+  outline: none;
+  background: #fafafa;
+  resize: none;
+  box-sizing: border-box;
+  transition: border-color 0.12s, box-shadow 0.12s, background 0.12s;
+}
+
+.mtb-clarify-input:focus {
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+  background: #fff;
+}
+
+.mtb-clarify-input::placeholder {
+  color: rgba(0, 0, 0, 0.34);
+}
+
+.mtb-clarify-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.mtb-clarify-skip {
+  flex: 0 0 auto;
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 550;
+  color: rgba(0, 0, 0, 0.55);
+  white-space: nowrap;
+  transition: background 0.12s;
+}
+
+.mtb-clarify-skip:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.mtb-clarify-send {
+  flex: 1;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border: none;
+  border-radius: 8px;
+  background: #059669;
+  color: #fff;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  transition: background 0.12s;
+}
+
+.mtb-clarify-send:not(:disabled):hover {
+  background: #047857;
+}
+
+.mtb-clarify-send:disabled {
+  background: rgba(0, 0, 0, 0.15);
+  cursor: not-allowed;
+}
+
+.mtb-clarify-send-feedback {
+  width: 100%;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: none;
+  border-radius: 9px;
+  background: #059669;
+  color: #fff;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  transition: background 0.12s;
+}
+
+.mtb-clarify-send-feedback:not(:disabled):hover {
+  background: #047857;
+}
+
+.mtb-clarify-send-feedback:disabled {
+  background: rgba(0, 0, 0, 0.15);
+  cursor: not-allowed;
+}
+
+.mtb-clarify-error {
+  margin-bottom: 8px;
+  color: #dc2626;
+  font-size: 11.5px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+:host([data-mtb-theme="dark"]) .mtb-clarify {
+  background: #151719;
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #f9fafb;
+}
+
+:host([data-mtb-theme="dark"]) .mtb-clarify-header {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+:host([data-mtb-theme="dark"]) .mtb-clarify-title {
+  color: #f9fafb;
+}
+
+:host([data-mtb-theme="dark"]) .mtb-clarify-subtitle {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+:host([data-mtb-theme="dark"]) .mtb-clarify-close {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+:host([data-mtb-theme="dark"]) .mtb-clarify-close:hover {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+:host([data-mtb-theme="dark"]) .mtb-clarify-skip {
+  background: #1f2327;
+  border-color: rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+:host([data-mtb-theme="dark"]) .mtb-clarify-skip:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+:host([data-mtb-theme="dark"]) .mtb-clarify-ai {
+  background: #1f2327;
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #f9fafb;
+}
+
+:host([data-mtb-theme="dark"]) .mtb-clarify-input {
+  background: #1f2327;
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #f9fafb;
+}
+
+@media (prefers-color-scheme: dark) {
+  :host([data-mtb-theme="auto"]) .mtb-clarify {
+    background: #151719;
+    border-color: rgba(255, 255, 255, 0.12);
+    color: #f9fafb;
+  }
+
+  :host([data-mtb-theme="auto"]) .mtb-clarify-header {
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+  }
+
+  :host([data-mtb-theme="auto"]) .mtb-clarify-title {
+    color: #f9fafb;
+  }
+
+  :host([data-mtb-theme="auto"]) .mtb-clarify-subtitle {
+    color: rgba(255, 255, 255, 0.45);
+  }
+
+  :host([data-mtb-theme="auto"]) .mtb-clarify-close {
+    color: rgba(255, 255, 255, 0.45);
+  }
+
+  :host([data-mtb-theme="auto"]) .mtb-clarify-close:hover {
+    color: rgba(255, 255, 255, 0.75);
+  }
+
+  :host([data-mtb-theme="auto"]) .mtb-clarify-skip {
+    background: #1f2327;
+    border-color: rgba(255, 255, 255, 0.14);
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  :host([data-mtb-theme="auto"]) .mtb-clarify-skip:hover {
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  :host([data-mtb-theme="auto"]) .mtb-clarify-ai {
+    background: #1f2327;
+    border-color: rgba(255, 255, 255, 0.12);
+    color: #f9fafb;
+  }
+
+  :host([data-mtb-theme="auto"]) .mtb-clarify-input {
+    background: #1f2327;
+    border-color: rgba(255, 255, 255, 0.12);
+    color: #f9fafb;
+  }
+}
+
+/* ===== Clickable dim (popup reset scrim) ===== */
+.mtb-dim-clickable {
+  z-index: 2147483643;
+  pointer-events: auto;
+  cursor: default;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+/* ===== Draw note bar ===== */
+.mtb-draw-bar {
+  position: fixed;
+  bottom: 48px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2147483647;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 46px;
+  padding: 0 8px 0 12px;
+  border-radius: 13px;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.22);
+  animation: mtbBarIn 0.2s ease;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.mtb-draw-input {
+  width: 220px;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  color: #191a1c;
+  outline: none;
+  background: #fafafa;
+  transition: border-color 0.12s, box-shadow 0.12s, background 0.12s;
+}
+
+.mtb-draw-input:focus {
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+  background: #fff;
+}
+
+.mtb-draw-input::placeholder {
+  color: rgba(0, 0, 0, 0.34);
+}
+
+.mtb-draw-icon-btn {
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #374151;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+
+.mtb-draw-icon-btn:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.mtb-draw-icon-btn:disabled {
+  color: rgba(0, 0, 0, 0.22);
+  cursor: default;
+}
+
+.mtb-draw-sep {
+  width: 1px;
+  height: 22px;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.mtb-draw-cancel {
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+  background: #fff;
+  color: rgba(0, 0, 0, 0.55);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 550;
+  transition: background 0.12s;
+}
+
+.mtb-draw-cancel:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.mtb-draw-submit {
+  height: 32px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 8px;
+  background: #059669;
+  color: #fff;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  transition: background 0.12s;
+}
+
+.mtb-draw-submit:hover:not(:disabled) {
+  background: #047857;
+}
+
+.mtb-draw-submit:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.mtb-draw-error {
+  position: absolute;
+  bottom: 100%;
+  left: 12px;
+  margin-bottom: 6px;
+  color: #dc2626;
+  font-size: 11.5px;
+}
+
+/* ===== Recording preview (comment popup) ===== */
+.mtb-record-preview {
+  margin-bottom: 12px;
+}
+
+.mtb-record-preview-stage {
+  position: relative;
+  width: 100%;
+  height: 132px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mtb-record-preview-stage.playing {
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.mtb-record-preview-play {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.92);
+  color: #059669;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.12s, background 0.12s;
+}
+
+.mtb-record-preview-play:hover:not(:disabled) {
+  transform: scale(1.06);
+  background: #fff;
+}
+
+.mtb-record-preview-play:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.mtb-record-preview-badge {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  font-family: 'JetBrains Mono', 'SF Mono', monospace;
+}
+
+.mtb-record-preview-fallback {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 12px;
+}
+
+.mtb-record-preview-name {
+  display: block;
+  margin-top: 5px;
+  font-size: 11px;
+  color: rgba(0, 0, 0, 0.42);
+}
