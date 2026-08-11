@@ -1,0 +1,2193 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:host {
+  all: initial;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #191a1c;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Theme tokens.
+
+   Dark reaches the widget two ways — `data-mtb-theme="dark"` outright, and
+   `"auto"` under a dark system preference — and only the second can live in a
+   media query. Every themed rule used to be written once for each, ~200 lines
+   of verbatim duplication in which a dark fix applied to one copy and not the
+   other was invisible until someone switched settings.
+
+   Only the token values are stated twice now, and the two blocks sit next to
+   each other where a divergence is obvious. Component rules read the tokens
+   and never name a dark value.
+
+   Where two components share a dark value but not a light one — the close
+   glyph and the success message are both white-68% in the dark and different
+   greys in the light — each keeps its own token. The tokens follow the light
+   design, which is the one with distinctions in it.
+   ═══════════════════════════════════════════════════════════════════════ */
+:host {
+  --mtb-brand-primary: #059669;
+  --mtb-brand-hover: #047857;
+  --mtb-brand-active: #065f46;
+  --mtb-brand-on-primary: #fff;
+  --mtb-brand-rgb: 5, 150, 105;
+  --mtb-brand-on-primary-rgb: 255, 255, 255;
+  --mtb-brand-emphasis: #10b981;
+  --mtb-brand-emphasis-rgb: 16, 185, 129;
+  --mtb-brand-gradient-start: #10b981;
+  --mtb-brand-gradient-end: #059669;
+  --mtb-panel-bg: #fff;
+  --mtb-panel-border: rgba(0, 0, 0, 0.1);
+  --mtb-panel-divider: rgba(0, 0, 0, 0.06);
+  --mtb-fg: #191a1c;
+  --mtb-field-bg: #fff;
+  --mtb-field-bg-subtle: #fafafa;
+  --mtb-field-border: rgba(0, 0, 0, 0.12);
+  --mtb-field-border-soft: rgba(0, 0, 0, 0.09);
+  --mtb-placeholder-fg: rgba(0, 0, 0, 0.34);
+  --mtb-action-bg: #fff;
+  --mtb-action-border: rgba(0, 0, 0, 0.12);
+  --mtb-action-fg: rgba(0, 0, 0, 0.55);
+  --mtb-action-hover-bg: rgba(0, 0, 0, 0.04);
+  --mtb-clarify-close-fg: rgba(0, 0, 0, 0.38);
+  --mtb-clarify-close-hover-fg: rgba(0, 0, 0, 0.7);
+  --mtb-dismiss-fg: rgba(0, 0, 0, 0.4);
+  --mtb-dismiss-hover-fg: rgba(0, 0, 0, 0.7);
+
+  --mtb-quick-hover-bg: rgba(var(--mtb-brand-emphasis-rgb), 0.06);
+  --mtb-quick-hover-border: rgba(var(--mtb-brand-emphasis-rgb), 0.3);
+  --mtb-quick-selected-bg: rgba(var(--mtb-brand-emphasis-rgb), 0.1);
+  --mtb-quick-selected-border: rgba(var(--mtb-brand-emphasis-rgb), 0.5);
+  --mtb-field-focus-border: var(--mtb-brand-emphasis);
+  --mtb-chat-card-bg: #FFFFFF;
+  --mtb-chat-card-shadow: 0 24px 64px rgba(0, 0, 0, 0.18);
+  --mtb-chat-raised-bg: #F9FAFB;
+  --mtb-chat-write-bg: #FFFFFF;
+  --mtb-chat-title-fg: #111827;
+  --mtb-chat-body-fg: #1f2937;
+  --mtb-chat-muted-fg: #6b7280;
+  --mtb-chat-placeholder-fg: #9ca3af;
+  --mtb-chat-pill-fg: #374151;
+  --mtb-chat-pill-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  --mtb-chat-pill-hover-shadow: 0 3px 10px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  --mtb-chat-close-hover-bg: #F3F4F6;
+  --mtb-chat-close-hover-fg: #111827;
+  --mtb-chat-composer-shadow: 0 -1px 6px rgba(0, 0, 0, 0.06);
+  --mtb-chat-skip-fg: #9ca3af;
+  --mtb-chat-skip-hover-fg: #4b5563;
+  --mtb-chat-camera-lens: #fff;
+  /* The chat surface carries its own accent rather than reusing the brand
+     token directly: on the dark card the green has to lighten and the text on
+     it has to darken, an inversion the brand token itself must not take on. */
+  --mtb-chat-accent: var(--mtb-brand-primary);
+  --mtb-chat-accent-hover: var(--mtb-brand-hover);
+  --mtb-chat-accent-fg: var(--mtb-brand-on-primary);
+  --mtb-chat-accent-rgb: var(--mtb-brand-rgb);
+  --mtb-chat-accent-fg-rgb: var(--mtb-brand-on-primary-rgb);
+  --mtb-chat-link-fg: var(--mtb-brand-primary);
+  --mtb-chat-send-shadow: 0 2px 8px rgba(var(--mtb-chat-accent-rgb), 0.35);
+  --mtb-chat-success-icon-shadow: 0 4px 14px rgba(var(--mtb-chat-accent-rgb), 0.35);
+  --mtb-chat-danger: #EF4444;
+  --mtb-chat-logo-start: #10b981;
+  --mtb-chat-logo-end: #059669;
+  --mtb-chat-logo-fg: #fff;
+}
+
+:host([data-mtb-theme="dark"]) {
+  --mtb-panel-bg: #151719;
+  --mtb-panel-border: rgba(255, 255, 255, 0.12);
+  --mtb-panel-divider: rgba(255, 255, 255, 0.1);
+  --mtb-fg: #f9fafb;
+  --mtb-field-bg: #1f2327;
+  --mtb-field-bg-subtle: #1f2327;
+  --mtb-field-border: rgba(255, 255, 255, 0.12);
+  --mtb-field-border-soft: rgba(255, 255, 255, 0.12);
+  --mtb-placeholder-fg: rgba(255, 255, 255, 0.4);
+  --mtb-action-bg: #1f2327;
+  --mtb-action-border: rgba(255, 255, 255, 0.14);
+  --mtb-action-fg: rgba(255, 255, 255, 0.7);
+  --mtb-action-hover-bg: rgba(255, 255, 255, 0.06);
+  --mtb-clarify-close-fg: rgba(255, 255, 255, 0.45);
+  --mtb-clarify-close-hover-fg: rgba(255, 255, 255, 0.75);
+  --mtb-dismiss-fg: rgba(255, 255, 255, 0.4);
+  --mtb-dismiss-hover-fg: rgba(255, 255, 255, 0.7);
+  --mtb-quick-hover-bg: rgba(var(--mtb-brand-emphasis-rgb), 0.12);
+  --mtb-quick-hover-border: rgba(var(--mtb-brand-emphasis-rgb), 0.45);
+  --mtb-quick-selected-bg: rgba(var(--mtb-brand-emphasis-rgb), 0.18);
+  --mtb-quick-selected-border: var(--mtb-brand-primary);
+  --mtb-field-focus-border: var(--mtb-brand-emphasis);
+  --mtb-chat-card-bg: #17191C;
+  --mtb-chat-card-shadow: 0 24px 64px rgba(0, 0, 0, 0.55);
+  --mtb-chat-raised-bg: #202327;
+  --mtb-chat-write-bg: #23272C;
+  --mtb-chat-title-fg: #E8EAED;
+  --mtb-chat-body-fg: #DCE0E4;
+  --mtb-chat-muted-fg: #B0B6BD;
+  --mtb-chat-placeholder-fg: #A3AAB2;
+  --mtb-chat-pill-fg: #DDE1E5;
+  --mtb-chat-pill-shadow: 0 1px 3px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  --mtb-chat-pill-hover-shadow: 0 4px 14px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.14);
+  --mtb-chat-close-hover-bg: rgba(255, 255, 255, 0.08);
+  --mtb-chat-close-hover-fg: #FFFFFF;
+  --mtb-chat-composer-shadow: 0 -1px 6px rgba(0, 0, 0, 0.45);
+  --mtb-chat-skip-fg: #A3AAB2;
+  --mtb-chat-skip-hover-fg: #E8EAED;
+  --mtb-chat-camera-lens: #EAF7EE;
+  --mtb-chat-accent: #4ADE80;
+  --mtb-chat-accent-hover: #34D399;
+  --mtb-chat-accent-fg: #0D1210;
+  --mtb-chat-accent-rgb: 74, 222, 128;
+  --mtb-chat-accent-fg-rgb: 13, 18, 16;
+  --mtb-chat-link-fg: #5BD98A;
+  --mtb-chat-send-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  --mtb-chat-success-icon-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  --mtb-chat-danger: #F87171;
+  --mtb-chat-logo-start: #1E9E4A;
+  --mtb-chat-logo-end: #0B8AA0;
+  --mtb-chat-logo-fg: #EAF7EE;
+}
+
+@media (prefers-color-scheme: dark) {
+  :host([data-mtb-theme="auto"]) {
+    --mtb-panel-bg: #151719;
+    --mtb-panel-border: rgba(255, 255, 255, 0.12);
+    --mtb-panel-divider: rgba(255, 255, 255, 0.1);
+    --mtb-fg: #f9fafb;
+    --mtb-field-bg: #1f2327;
+    --mtb-field-bg-subtle: #1f2327;
+    --mtb-field-border: rgba(255, 255, 255, 0.12);
+    --mtb-field-border-soft: rgba(255, 255, 255, 0.12);
+    --mtb-placeholder-fg: rgba(255, 255, 255, 0.4);
+    --mtb-action-bg: #1f2327;
+    --mtb-action-border: rgba(255, 255, 255, 0.14);
+    --mtb-action-fg: rgba(255, 255, 255, 0.7);
+    --mtb-action-hover-bg: rgba(255, 255, 255, 0.06);
+    --mtb-clarify-close-fg: rgba(255, 255, 255, 0.45);
+    --mtb-clarify-close-hover-fg: rgba(255, 255, 255, 0.75);
+    --mtb-dismiss-fg: rgba(255, 255, 255, 0.4);
+    --mtb-dismiss-hover-fg: rgba(255, 255, 255, 0.7);
+    --mtb-quick-hover-bg: rgba(var(--mtb-brand-emphasis-rgb), 0.12);
+    --mtb-quick-hover-border: rgba(var(--mtb-brand-emphasis-rgb), 0.45);
+    --mtb-quick-selected-bg: rgba(var(--mtb-brand-emphasis-rgb), 0.18);
+    --mtb-quick-selected-border: var(--mtb-brand-primary);
+    --mtb-field-focus-border: var(--mtb-brand-emphasis);
+    --mtb-chat-card-bg: #17191C;
+    --mtb-chat-card-shadow: 0 24px 64px rgba(0, 0, 0, 0.55);
+    --mtb-chat-raised-bg: #202327;
+    --mtb-chat-write-bg: #23272C;
+    --mtb-chat-title-fg: #E8EAED;
+    --mtb-chat-body-fg: #DCE0E4;
+    --mtb-chat-muted-fg: #B0B6BD;
+    --mtb-chat-placeholder-fg: #A3AAB2;
+    --mtb-chat-pill-fg: #DDE1E5;
+    --mtb-chat-pill-shadow: 0 1px 3px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.08);
+    --mtb-chat-pill-hover-shadow: 0 4px 14px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.14);
+    --mtb-chat-close-hover-bg: rgba(255, 255, 255, 0.08);
+    --mtb-chat-close-hover-fg: #FFFFFF;
+    --mtb-chat-composer-shadow: 0 -1px 6px rgba(0, 0, 0, 0.45);
+    --mtb-chat-skip-fg: #A3AAB2;
+    --mtb-chat-skip-hover-fg: #E8EAED;
+    --mtb-chat-camera-lens: #EAF7EE;
+    --mtb-chat-accent: #4ADE80;
+    --mtb-chat-accent-hover: #34D399;
+    --mtb-chat-accent-fg: #0D1210;
+    --mtb-chat-accent-rgb: 74, 222, 128;
+    --mtb-chat-accent-fg-rgb: 13, 18, 16;
+    --mtb-chat-link-fg: #5BD98A;
+    --mtb-chat-send-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    --mtb-chat-success-icon-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    --mtb-chat-danger: #F87171;
+    --mtb-chat-logo-start: #1E9E4A;
+    --mtb-chat-logo-end: #0B8AA0;
+    --mtb-chat-logo-fg: #EAF7EE;
+  }
+}
+
+/* ===== Side Tab ===== */
+.mtb-tab {
+  /* Same crosshair the toolbar uses for markup mode. Carried as a mask so a
+     single `color` drives icon and text together, including the active and
+     dark-mode states. */
+  --mtb-tab-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='8'/%3E%3Ccircle cx='12' cy='12' r='2.4' fill='%23000' stroke='none'/%3E%3Cpath d='M12 1.8v3.4M12 18.8v3.4M1.8 12h3.4M18.8 12h3.4'/%3E%3C/svg%3E");
+  --mtb-tab-bg: var(--mtb-brand-primary);
+  --mtb-tab-hover-bg: var(--mtb-brand-hover);
+  --mtb-tab-active-bg: var(--mtb-brand-active);
+  --mtb-tab-shadow-color: var(--mtb-brand-rgb);
+  --mtb-tab-fg: var(--mtb-brand-on-primary);
+  position: fixed;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  z-index: 2147483646;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  padding: 14px 0;
+  background: var(--mtb-tab-bg);
+  color: var(--mtb-tab-fg);
+  border-radius: 8px 0 0 8px;
+  cursor: pointer;
+  box-shadow: -2px 0 14px rgba(var(--mtb-tab-shadow-color), 0.35);
+  transition: background 0.15s, box-shadow 0.15s, width 0.15s;
+  writing-mode: vertical-lr;
+  text-orientation: mixed;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  user-select: none;
+  border: none;
+  outline: none;
+}
+
+.mtb-tab.left {
+  right: auto;
+  left: 0;
+  border-radius: 0 8px 8px 0;
+  box-shadow: 2px 0 14px rgba(var(--mtb-tab-shadow-color), 0.35);
+}
+
+.mtb-tab:hover {
+  background: var(--mtb-tab-hover-bg);
+  box-shadow: -3px 0 20px rgba(var(--mtb-tab-shadow-color), 0.45);
+}
+
+.mtb-tab.active {
+  background: var(--mtb-tab-active-bg);
+}
+
+/* ===== Hint bar =====
+   Words only, no controls, so it never takes a click — the page underneath is
+   always reachable through it. Dimming while the pointer is on top of it is the
+   only thing that changes, and that is purely so you can read what it covers.
+
+   z-index is explicit because this element is appended before the dim and
+   overlay layers; without it the annotation dim would render over the hint. */
+.mtb-hint-bar {
+  position: fixed;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2147483647;
+  display: flex;
+  align-items: center;
+  height: 38px;
+  padding: 0 16px;
+  border-radius: 13px;
+  background: linear-gradient(120deg, var(--mtb-brand-gradient-start), var(--mtb-brand-gradient-end));
+  color: var(--mtb-brand-on-primary);
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.22);
+  animation: mtbHintIn 0.2s ease;
+  white-space: nowrap;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+}
+
+.mtb-hint-bar--under-pointer {
+  opacity: 0.3;
+}
+
+.mtb-hint-bar.mtb-hint-bar--dismissed {
+  display: none;
+}
+
+@keyframes mtbHintIn {
+  from { transform: translate(-50%, 12px); opacity: 0; }
+  to   { transform: translate(-50%, 0); opacity: 1; }
+}
+
+/* ===== Toolbar =====
+   Down whichever edge the tab uses, rather than across the top. Its buttons
+   have to take clicks, which means they block whatever sits beneath them; at
+   the edge of the screen that is almost never something anyone wants to
+   annotate, whereas across the top it was the page's own header every time. */
+.mtb-toolbar {
+  position: fixed;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+  z-index: 2147483647;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 38px;
+  padding: 6px 0;
+  max-height: calc(100vh - 24px);
+  border-radius: 19px;
+  background: linear-gradient(160deg, var(--mtb-brand-gradient-start), var(--mtb-brand-gradient-end));
+  color: var(--mtb-brand-on-primary);
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.2);
+  animation: mtbEdgeBarIn 0.2s ease;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.mtb-toolbar.left {
+  right: auto;
+  left: 8px;
+  animation: mtbEdgeBarInLeft 0.2s ease;
+}
+
+/* Its own keyframes. mtbBarIn is shared with the record and draw bars, which
+   centre themselves horizontally — giving it this bar's translateY(-50%) threw
+   both of those upward for the length of the animation and dropped them back
+   when it ended. Keyframes that encode one element's resting transform cannot
+   be shared with elements that rest somewhere else. */
+/* The bottom-centred record and draw bars. They rest at translateX(-50%), so
+   their entry has to preserve it. */
+@keyframes mtbBarIn {
+  from { transform: translate(-50%, 12px); opacity: 0; }
+  to   { transform: translate(-50%, 0); opacity: 1; }
+}
+
+@keyframes mtbEdgeBarIn {
+  from { transform: translate(12px, -50%); opacity: 0; }
+  to   { transform: translate(0, -50%); opacity: 1; }
+}
+
+@keyframes mtbEdgeBarInLeft {
+  from { transform: translate(-12px, -50%); opacity: 0; }
+  to   { transform: translate(0, -50%); opacity: 1; }
+}
+
+.mtb-toolbar-label {
+  display: none;
+}
+
+:host([data-mtb-toolbar]) .mtb-tab {
+  display: none;
+}
+
+.mtb-toolbar-modes {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  background: rgba(var(--mtb-brand-on-primary-rgb), 0.16);
+  border-radius: 9px;
+  padding: 3px;
+}
+
+.mtb-toolbar-mode-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 7px;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 550;
+  white-space: nowrap;
+  background: transparent;
+  color: var(--mtb-brand-on-primary);
+  transition: all 0.12s;
+}
+
+.mtb-toolbar-mode-btn.active {
+  background: #fff;
+  color: var(--mtb-brand-active);
+}
+
+.mtb-toolbar-hint {
+  font-size: 12px;
+  color: var(--mtb-brand-on-primary);
+  white-space: nowrap;
+}
+
+/* Horizontal now that the bar runs down the edge. */
+.mtb-toolbar-sep {
+  width: 20px;
+  height: 1px;
+  align-self: center;
+  background: rgba(var(--mtb-brand-on-primary-rgb), 0.22);
+}
+
+.mtb-exit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 8px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--mtb-brand-on-primary);
+  cursor: pointer;
+  background: rgba(var(--mtb-brand-on-primary-rgb), 0.16);
+  border: none;
+  font-family: inherit;
+  transition: background 0.12s;
+}
+
+/* ===== Edge bar, desktop =====
+   Placed after the horizontal-bar rules above so it wins on order. Those rules
+   dress a wide bar carrying words: a white pill behind the active mode, a
+   translucent track around the pair, another translucent box on exit. Stripped
+   to icons in a 38px column that reads as three unrelated blocks, so all three
+   become the same 30px circle and only the active one is filled. */
+.mtb-toolbar-modes {
+  flex-direction: column;
+  gap: 6px;
+  padding: 0;
+  background: none;
+  border-radius: 0;
+}
+
+.mtb-toolbar-mode-btn,
+.mtb-exit-btn {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--mtb-brand-on-primary);
+}
+
+.mtb-toolbar-mode-btn { opacity: 0.72; }
+.mtb-exit-btn { opacity: 1; }
+
+.mtb-toolbar-mode-btn:hover,
+.mtb-exit-btn:hover {
+  background: rgba(var(--mtb-brand-on-primary-rgb), 0.16);
+  color: var(--mtb-brand-on-primary);
+  opacity: 1;
+}
+
+.mtb-toolbar-mode-btn.active,
+.mtb-toolbar-mode-btn.active:hover {
+  background: var(--mtb-brand-on-primary);
+  color: var(--mtb-brand-hover);
+  opacity: 1;
+}
+
+/* Exit is an action rather than a mode, so it reads at full strength while the
+   two modes sit back until chosen. The divider carries the grouping. */
+.mtb-exit-btn {
+  color: var(--mtb-brand-on-primary);
+}
+
+.mtb-toolbar-sep {
+  width: 16px;
+  height: 1px;
+  margin: 1px 0;
+  align-self: center;
+  background: rgba(var(--mtb-brand-on-primary-rgb), 0.28);
+}
+
+.mtb-exit-btn:hover {
+  background: rgba(var(--mtb-brand-on-primary-rgb), 0.28);
+}
+
+/* ===== Overlay ===== */
+.mtb-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483640;
+  cursor: crosshair;
+  /* Without this a touch browser claims a finger drag as a pan and never
+     delivers the pointermove stream, so freehand drawing cannot happen. */
+  touch-action: none;
+}
+
+.mtb-dim {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483639;
+  background: rgba(0, 0, 0, 0.08);
+}
+
+/* ===== Highlight ===== */
+.mtb-highlight {
+  position: fixed;
+  z-index: 2147483641;
+  pointer-events: none;
+  border: 2px solid var(--mtb-brand-emphasis);
+  border-radius: 6px;
+  background: rgba(var(--mtb-brand-emphasis-rgb), 0.06);
+  transition: all 0.08s ease;
+}
+
+/* .selected formerly darkened the border and boosted the fill to distinguish
+   "hovering" from "clicked", but the popup lands on top immediately so the
+   shift was never visible — just noise.  Hover and selected now look the same;
+   the popup is the real confirmation. */
+
+.mtb-highlight-tooltip {
+  position: fixed;
+  z-index: 2147483642;
+  pointer-events: none;
+  transform: translate(-50%, -100%);
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: var(--mtb-brand-active);
+  color: var(--mtb-brand-on-primary);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.mtb-highlight-tooltip.below {
+  transform: translate(-50%, 0);
+}
+
+.mtb-highlight-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-top-color: var(--mtb-brand-active);
+}
+
+.mtb-highlight-tooltip.below::after {
+  top: auto;
+  bottom: 100%;
+  border-top-color: transparent;
+  border-bottom-color: var(--mtb-brand-active);
+}
+
+/* ===== Draw SVG ===== */
+.mtb-draw-svg {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483643;
+  pointer-events: none;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* ===== Pin ===== */
+.mtb-pin {
+  position: fixed;
+  z-index: 2147483644;
+  pointer-events: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50% 50% 50% 2px;
+  background: var(--mtb-brand-primary);
+  border: 2px solid #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: var(--mtb-brand-on-primary);
+  font-weight: 700;
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.68), 0 2px 8px rgba(var(--mtb-brand-rgb), 0.45);
+  animation: mtbPinPop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform: translate(-50%, -50%);
+}
+
+@keyframes mtbPinPop {
+  from { transform: translate(-50%, -50%) scale(0.4); }
+  to   { transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes mtbSlideUp {
+  from { transform: translateY(14px) scale(0.97); opacity: 0; }
+  to   { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+/* Drawn by us rather than left to the browser: the native disabled paint
+   varies per platform and can wash the tick out entirely, and this box must
+   always read as "checked". The fill is the disabled grey, not the brand
+   colour — a full-brand tick looks like a control that takes clicks, and this
+   one deliberately doesn't. */
+
+.mtb-draw-shot input:disabled {
+  appearance: none;
+  -webkit-appearance: none;
+  border: none;
+  border-radius: 4px;
+  background-color: var(--mtb-placeholder-fg);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23fff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round' d='M3.5 8.5l3 3 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  opacity: 1;
+}
+
+/* The draw bar is hardcoded-light (background: #fff regardless of theme), so
+   its grey is stated directly like every other rule in that block. */
+.mtb-draw-shot input:disabled {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.mtb-btn-loading {
+  pointer-events: none;
+  opacity: 0.8;
+}
+.mtb-btn-loading::after {
+  content: '';
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-left: 6px;
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: mtbSpin 0.7s linear infinite;
+  vertical-align: middle;
+}
+
+/* ===== Chat Popup =====
+   Zones are separated by background colour and shadow only — no borders. The
+   card, the raised zones (header/composer/AI bubble) and the writing surfaces
+   are three distinct greys that invert together in dark mode. */
+.mtb-chat {
+  position: fixed;
+  z-index: 2147483645;
+  display: flex;
+  flex-direction: column;
+  width: min(320px, calc(100vw - 56px));
+  max-height: 420px;
+  background: var(--mtb-chat-card-bg);
+  border-radius: 16px;
+  color: var(--mtb-chat-title-fg);
+  box-shadow: var(--mtb-chat-card-shadow);
+  overflow: hidden;
+  animation: mtbSlideUp 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* The standalone receipt (retry-success path) docks bottom-right like the
+   launcher instead of anchoring to a pin, and skips the entrance animation —
+   the compound selector outranks the mobile sheet rules on purpose. */
+.mtb-chat.mtb-chat-receipt {
+  left: auto;
+  right: 20px;
+  top: auto;
+  bottom: 20px;
+  width: min(320px, calc(100vw - 40px));
+  animation: none;
+}
+
+.mtb-chat-header {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 11px 12px;
+  background: var(--mtb-chat-raised-bg);
+  flex-shrink: 0;
+}
+
+.mtb-chat-brand {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  text-decoration: none;
+  opacity: 0.9;
+  transition: opacity 0.16s;
+}
+
+.mtb-chat-brand:hover {
+  opacity: 1;
+}
+
+.mtb-chat-brand:hover .mtb-chat-brand-name {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.mtb-chat-logo {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  overflow: hidden;
+  flex: none;
+}
+
+.mtb-chat-logo svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.mtb-chat-brand-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--mtb-chat-title-fg);
+}
+
+.mtb-chat-header-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+}
+
+.mtb-chat-header-gap {
+  flex: 1;
+}
+
+.mtb-chat-close {
+  width: 28px;
+  height: 28px;
+  border-radius: 99px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--mtb-chat-muted-fg);
+  cursor: pointer;
+  flex: none;
+  transition: background 0.16s, color 0.16s;
+}
+
+.mtb-chat-close:hover {
+  background: var(--mtb-chat-close-hover-bg);
+  color: var(--mtb-chat-close-hover-fg);
+}
+
+.mtb-chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+  background: var(--mtb-chat-card-bg);
+}
+
+.mtb-chat-messages:empty {
+  display: none;
+}
+
+.mtb-chat-bubble {
+  font-size: 13px;
+  max-width: 85%;
+  word-break: break-word;
+}
+
+.mtb-chat-bubble-user {
+  align-self: flex-end;
+  background: var(--mtb-chat-accent);
+  color: var(--mtb-chat-accent-fg);
+  line-height: 1.45;
+  padding: 8px 11px;
+  border-radius: 12px 12px 4px 12px;
+}
+
+.mtb-chat-bubble-ai {
+  background: var(--mtb-chat-raised-bg);
+  color: var(--mtb-chat-body-fg);
+  line-height: 1.5;
+  padding: 9px 12px;
+  border-radius: 12px 12px 12px 4px;
+}
+
+.mtb-chat-ai-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 7px;
+}
+
+.mtb-chat-avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  overflow: hidden;
+  flex: none;
+}
+
+.mtb-chat-avatar svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.mtb-chat-dots {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 12px;
+  background: var(--mtb-chat-raised-bg);
+  border-radius: 12px 12px 12px 4px;
+}
+
+.mtb-chat-dots span {
+  width: 5px;
+  height: 5px;
+  background: var(--mtb-chat-accent);
+  border-radius: 99px;
+  animation: mtbChatDot 1.1s infinite;
+}
+
+.mtb-chat-dots span:nth-child(2) { animation-delay: 0.15s; }
+.mtb-chat-dots span:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes mtbChatDot {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.45; }
+  30% { transform: translateY(-4px); opacity: 1; }
+}
+
+/* Suggestion pills hang under the AI bubble, indented past the 22px avatar
+   and its 7px gap so they line up with the bubble text rather than the row. */
+.mtb-chat-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-left: 29px;
+}
+
+.mtb-chat-sg {
+  background: var(--mtb-chat-write-bg);
+  border: none;
+  border-radius: 99px;
+  padding: 5px 10px;
+  font-size: 11px;
+  font-weight: 500;
+  font-family: inherit;
+  color: var(--mtb-chat-pill-fg);
+  cursor: pointer;
+  box-shadow: var(--mtb-chat-pill-shadow);
+  transition: box-shadow 0.16s, transform 0.16s;
+}
+
+.mtb-chat-sg:hover {
+  box-shadow: var(--mtb-chat-pill-hover-shadow);
+  transform: translateY(-1px);
+}
+
+.mtb-chat-quick-replies {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 12px;
+  background: var(--mtb-chat-card-bg);
+}
+
+.mtb-chat-qr {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--mtb-chat-write-bg);
+  border: none;
+  border-radius: 99px;
+  padding: 7px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: inherit;
+  color: var(--mtb-chat-pill-fg);
+  cursor: pointer;
+  box-shadow: var(--mtb-chat-pill-shadow);
+  transition: box-shadow 0.16s, transform 0.16s;
+}
+
+.mtb-chat-qr:hover {
+  box-shadow: var(--mtb-chat-pill-hover-shadow);
+  transform: translateY(-1px);
+}
+
+.mtb-chat-qr:disabled {
+  opacity: 0.5;
+  pointer-events: none;
+  cursor: default;
+  transform: none !important;
+  box-shadow: var(--mtb-chat-pill-shadow) !important;
+}
+
+.mtb-chat-composer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  background: var(--mtb-chat-raised-bg);
+  box-shadow: var(--mtb-chat-composer-shadow);
+  flex-shrink: 0;
+}
+
+.mtb-chat-composer-disabled {
+  pointer-events: none;
+}
+
+.mtb-chat-composer-disabled .mtb-chat-input {
+  opacity: 0.3;
+}
+
+.mtb-chat-input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 64px;
+  max-height: 132px;
+  padding: 10px 12px;
+  background: var(--mtb-chat-write-bg);
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.5;
+  font-family: inherit;
+  color: var(--mtb-chat-title-fg);
+  outline: none;
+  resize: none;
+}
+
+.mtb-chat-input::placeholder {
+  color: var(--mtb-chat-placeholder-fg);
+}
+
+.mtb-chat-input:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.mtb-chat-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mtb-chat-actions-gap {
+  flex: 1;
+}
+
+.mtb-chat-screenshot,
+.mtb-chat-attachment {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  color: var(--mtb-chat-accent);
+  cursor: pointer;
+  transition: opacity 0.16s;
+}
+
+.mtb-chat-screenshot svg,
+.mtb-chat-attachment svg {
+  display: flex;
+  flex: none;
+}
+
+.mtb-chat-icon-lens {
+  fill: var(--mtb-chat-camera-lens);
+}
+
+.mtb-chat-screenshot:hover {
+  opacity: 0.75;
+}
+
+.mtb-chat-attachment {
+  cursor: default;
+}
+
+.mtb-chat-capture-label {
+  font-size: 11px;
+  color: var(--mtb-chat-muted-fg);
+}
+
+.mtb-chat-screenshot[aria-pressed="false"],
+.mtb-chat-screenshot-off {
+  opacity: 0.4;
+  color: var(--mtb-chat-muted-fg);
+}
+
+.mtb-chat-screenshot:disabled {
+  opacity: 0.3;
+  pointer-events: none;
+  cursor: default;
+}
+
+.mtb-chat-skip {
+  height: 26px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  display: flex;
+  align-items: center;
+  padding: 0 4px;
+  font-size: 11px;
+  font-weight: 500;
+  font-family: inherit;
+  color: var(--mtb-chat-skip-fg);
+  cursor: pointer;
+  flex: none;
+  transition: color 0.16s;
+}
+
+.mtb-chat-skip:hover {
+  color: var(--mtb-chat-skip-hover-fg);
+}
+
+.mtb-chat-send {
+  position: relative;
+  height: 34px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 10px;
+  background: var(--mtb-chat-accent);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--mtb-chat-accent-fg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  cursor: pointer;
+  box-shadow: var(--mtb-chat-send-shadow);
+}
+
+.mtb-chat-send:disabled {
+  opacity: 0.3;
+  box-shadow: none;
+  cursor: default;
+}
+
+/* A failed submit stays in the transcript: the message in the danger color,
+   the retry as a small bordered button beside it. */
+.mtb-chat-error-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.mtb-chat-error-text {
+  font-size: 11px;
+  color: var(--mtb-danger, #ef4444);
+}
+
+.mtb-chat-error-retry {
+  font-size: 11px;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--mtb-chat-pill-fg);
+  background: var(--mtb-chat-write-bg);
+  border: none;
+  border-radius: 999px;
+  padding: 4px 11px;
+  box-shadow: var(--mtb-chat-pill-shadow);
+  cursor: pointer;
+}
+
+.mtb-chat-error-retry:hover {
+  box-shadow: var(--mtb-chat-pill-hover-shadow);
+}
+
+/* ===== Chat success state ===== */
+.mtb-chat-success {
+  padding: 30px 20px 26px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  background: var(--mtb-chat-card-bg);
+  animation: mtbSlideUp 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* Without the email card the receipt is the whole card, so it centres on more
+   generous vertical padding than the version that has a form under it. */
+.mtb-chat-success-simple {
+  padding-top: 34px;
+  padding-bottom: 22px;
+}
+
+.mtb-chat-success-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 99px;
+  background: var(--mtb-chat-accent);
+  color: var(--mtb-chat-accent-fg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--mtb-chat-success-icon-shadow);
+}
+
+.mtb-chat-success-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--mtb-chat-title-fg);
+  margin-top: 2px;
+  text-align: center;
+}
+
+.mtb-chat-finalize-failure .mtb-chat-failure-icon {
+  background: rgba(239, 68, 68, 0.10);
+  color: var(--mtb-chat-danger, #ef4444);
+  box-shadow: none;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.mtb-chat-finalize-failure {
+  padding: 26px 24px;
+  gap: 8px;
+}
+
+.mtb-chat-finalize-message {
+  color: var(--mtb-chat-muted-fg);
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.mtb-chat-finalize-retry {
+  margin-top: 12px;
+  width: 100%;
+  height: 34px;
+  border: none;
+  border-radius: 10px;
+  background: var(--mtb-chat-accent);
+  box-shadow: var(--mtb-chat-send-shadow);
+  color: var(--mtb-chat-accent-fg);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.mtb-chat-finalize-retry:hover:not(:disabled) {
+  background: var(--mtb-chat-accent-hover);
+}
+
+.mtb-chat-finalize-retry:disabled {
+  cursor: wait;
+  opacity: 0.8;
+}
+
+.mtb-chat-finalize-spinner {
+  width: 14px;
+  height: 14px;
+  display: inline-block;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: mtbSpin 0.7s linear infinite;
+}
+
+.mtb-chat-finalize-close {
+  margin-top: 8px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--mtb-chat-muted-fg);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.mtb-chat-finalize-close:hover {
+  color: var(--mtb-chat-title-fg);
+}
+
+.mtb-chat-success-link {
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--mtb-chat-link-fg);
+  text-decoration: none;
+  margin-top: 4px;
+  cursor: pointer;
+}
+
+.mtb-chat-success-link-pending {
+  color: var(--mtb-chat-muted-fg);
+  cursor: default;
+  pointer-events: none;
+}
+
+.mtb-chat-email-card {
+  align-self: stretch;
+  margin-top: 10px;
+  background: var(--mtb-chat-raised-bg);
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.mtb-chat-email-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.mtb-chat-email-field {
+  flex: 1;
+  background: var(--mtb-chat-write-bg);
+  border-radius: 8px;
+  box-sizing: border-box;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  min-width: 0;
+}
+
+.mtb-chat-email-input {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  border: none;
+  outline: none;
+  font-size: 12px;
+  font-family: inherit;
+  color: var(--mtb-chat-title-fg);
+}
+
+.mtb-chat-email-input::placeholder {
+  color: var(--mtb-chat-placeholder-fg);
+}
+
+.mtb-chat-email-submit {
+  height: 30px;
+  padding: 0 10px;
+  border: none;
+  border-radius: 8px;
+  background: var(--mtb-chat-accent);
+  font-size: 11px;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--mtb-chat-accent-fg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  cursor: pointer;
+}
+
+.mtb-chat-email-submit:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.mtb-chat-email-note {
+  font-size: 12px;
+  color: var(--mtb-chat-muted-fg);
+  text-align: center;
+}
+
+.mtb-chat-email-error {
+  font-size: 11px;
+  color: var(--mtb-danger, #ef4444);
+  text-align: center;
+}
+
+/* ===== Pet Entry ===== */
+.mtb-pet {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 2147483646;
+  cursor: pointer;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: transparent;
+  animation: mtbPetBounce 3s ease-in-out infinite;
+  transition: transform 0.2s;
+  user-select: none;
+  outline: none;
+  filter: drop-shadow(0 4px 12px rgba(var(--mtb-brand-rgb), 0.35));
+}
+
+.mtb-pet:hover {
+  transform: scale(1.12);
+  animation-play-state: paused;
+}
+
+.mtb-pet:hover .mtb-pet-bubble {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+
+.mtb-pet.active {
+  animation: none;
+  opacity: 0.6;
+}
+
+.mtb-pet-svg {
+  display: block;
+}
+
+@keyframes mtbPetBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.mtb-pet-bubble {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  margin-bottom: 8px;
+  background: #064e3b;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.mtb-pet-bubble.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+
+.mtb-pet-bubble.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.mtb-pet-bubble::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #064e3b;
+}
+
+/* ===== Frustration Prompt ===== */
+.mtb-frustration-prompt {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 2147483645;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: var(--mtb-panel-bg);
+  border: 1px solid var(--mtb-panel-border);
+  border-radius: 12px;
+  color: var(--mtb-fg);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  animation: mtbSlideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.mtb-frustration-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(234, 179, 8, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.mtb-frustration-text {
+  font-size: 13px;
+  font-weight: 500;
+  color: inherit;
+  line-height: 1.4;
+}
+
+.mtb-frustration-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.mtb-frustration-tell {
+  height: 28px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 7px;
+  background: var(--mtb-brand-primary);
+  color: var(--mtb-brand-on-primary);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  transition: background 0.12s;
+}
+
+.mtb-frustration-tell:hover {
+  background: var(--mtb-brand-hover);
+}
+
+.mtb-frustration-tell:active { background: var(--mtb-brand-active); }
+
+.mtb-frustration-dismiss {
+  height: 28px;
+  padding: 0 8px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--mtb-dismiss-fg);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  transition: color 0.12s;
+}
+
+.mtb-frustration-dismiss:hover {
+  color: var(--mtb-dismiss-hover-fg);
+}
+
+/* ===== Record Control Bar ===== */
+.mtb-record-bar {
+  position: fixed;
+  bottom: 48px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2147483647;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 42px;
+  padding: 0 8px 0 14px;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.92);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  animation: mtbBarIn 0.2s ease;
+}
+
+.mtb-record-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #dc2626;
+  animation: mtbRecordPulse 1.2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes mtbRecordPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.mtb-record-timer {
+  font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  font-size: 13px;
+  font-weight: 500;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  min-width: 38px;
+}
+
+.mtb-record-stop {
+  height: 28px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 7px;
+  background: var(--mtb-brand-primary);
+  color: var(--mtb-brand-on-primary);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  transition: background 0.12s;
+}
+
+.mtb-record-stop:hover {
+  background: var(--mtb-brand-hover);
+}
+
+.mtb-record-stop:active { background: var(--mtb-brand-active); }
+
+/* ===== Click Ripple ===== */
+/* One ring, one fill, both in the brand colour. This used to add white and
+   navy halo rings for contrast on arbitrary host backgrounds, but stacked with
+   the border they read as three concentric circles in three colours — a
+   spectacle where a click marker was wanted. The expanding animation carries
+   the visibility; low contrast on a brand-coloured background costs less than
+   the halo did everywhere else. */
+.mtb-click-ripple {
+  position: fixed;
+  z-index: 2147483644;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--mtb-brand-emphasis);
+  background: rgba(var(--mtb-brand-emphasis-rgb), 0.25);
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(0.5);
+  animation: mtbClickRipple 0.3s ease-out forwards;
+}
+
+@keyframes mtbClickRipple {
+  0% {
+    transform: translate(-50%, -50%) scale(0.5);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2);
+    opacity: 0;
+  }
+}
+
+@keyframes mtbDot {
+  0%, 80%, 100% { opacity: 0.3; transform: translateY(0); }
+  40% { opacity: 1; transform: translateY(-3px); }
+}
+
+.mtb-clarify-retry {
+  flex: 1;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border: none;
+  border-radius: 8px;
+  background: var(--mtb-brand-primary);
+  color: var(--mtb-brand-on-primary);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  transition: background 0.12s;
+}
+
+.mtb-clarify-retry:not(:disabled):hover {
+  background: var(--mtb-brand-hover);
+}
+
+.mtb-clarify-retry:not(:disabled):active {
+  background: var(--mtb-brand-active);
+}
+
+.mtb-clarify-retry:disabled {
+  background: rgba(0, 0, 0, 0.15);
+  cursor: not-allowed;
+}
+
+@keyframes mtbSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* ===== Clickable dim (popup reset scrim) ===== */
+.mtb-dim-clickable {
+  z-index: 2147483643;
+  pointer-events: auto;
+  cursor: default;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+/* ===== Draw note bar ===== */
+.mtb-draw-bar {
+  position: fixed;
+  bottom: 48px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2147483647;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 46px;
+  padding: 0 8px 0 12px;
+  border-radius: 13px;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.22);
+  animation: mtbBarIn 0.2s ease;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.mtb-draw-input {
+  width: 220px;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  color: #191a1c;
+  outline: none;
+  background: #fafafa;
+  transition: border-color 0.12s, box-shadow 0.12s, background 0.12s;
+}
+
+.mtb-draw-input:focus {
+  border-color: var(--mtb-brand-emphasis);
+  box-shadow: 0 0 0 3px rgba(var(--mtb-brand-emphasis-rgb), 0.15);
+  background: #fff;
+}
+
+.mtb-draw-input::placeholder {
+  color: rgba(0, 0, 0, 0.34);
+}
+
+.mtb-draw-icon-btn {
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #374151;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+
+.mtb-draw-icon-btn:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.mtb-draw-icon-btn:disabled {
+  color: rgba(0, 0, 0, 0.22);
+  cursor: default;
+}
+
+/* The same disclosure as the popup's, shrunk to fit a 46px single row: no box,
+   no border, short label. Locked for the same reason — the strokes are baked
+   onto the screenshot. */
+.mtb-draw-shot {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: rgba(0, 0, 0, 0.55);
+  white-space: nowrap;
+  cursor: default;
+  user-select: none;
+}
+
+.mtb-draw-shot input {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  accent-color: var(--mtb-brand-primary);
+  cursor: default;
+}
+
+.mtb-draw-sep {
+  width: 1px;
+  height: 22px;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.mtb-draw-cancel {
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+  background: #fff;
+  color: rgba(0, 0, 0, 0.55);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 550;
+  transition: background 0.12s;
+}
+
+.mtb-draw-cancel:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.mtb-draw-submit {
+  height: 32px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 8px;
+  background: var(--mtb-brand-primary);
+  color: var(--mtb-brand-on-primary);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  transition: background 0.12s;
+}
+
+.mtb-draw-submit:hover:not(:disabled) {
+  background: var(--mtb-brand-hover);
+}
+
+.mtb-draw-submit:active:not(:disabled) { background: var(--mtb-brand-active); }
+
+.mtb-draw-submit:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* ===== Recording preview (comment popup) ===== */
+.mtb-record-preview {
+  margin-bottom: 12px;
+}
+
+.mtb-record-preview-stage {
+  position: relative;
+  width: 100%;
+  height: 132px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mtb-record-preview-stage.playing {
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.mtb-record-preview-play {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--mtb-brand-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.12s, background 0.12s;
+}
+
+.mtb-record-preview-play:hover:not(:disabled) {
+  transform: scale(1.06);
+  background: #fff;
+}
+
+.mtb-record-preview-play:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.mtb-record-preview-badge {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  font-family: 'JetBrains Mono', 'SF Mono', monospace;
+}
+
+.mtb-record-preview-fallback {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 12px;
+}
+
+.mtb-record-preview-name {
+  display: block;
+  margin-top: 5px;
+  font-size: 11px;
+  color: rgba(0, 0, 0, 0.42);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Mobile adaptation, split across two independent axes.
+
+   "Operated by a finger" and "narrow screen" are different facts, and any
+   single breakpoint gets one of them wrong: an iPad is a finger device on a
+   wide screen; a phone in landscape is a finger device on a short-but-wide
+   one. So touch-target sizing keys on the pointer type, and layout form keys
+   on width. The width block comes second on purpose — where both match, form
+   wins over sizing.
+
+   Known gap, accepted: a Windows laptop with a touch screen but a mouse as
+   its primary pointer reports `fine` and gets desktop sizing. Covering it
+   would need `any-pointer: coarse`, which also enlarges every desktop that
+   merely has a touch monitor plugged in.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── Axis 1: touch targets (Apple HIG 44pt / Material 48dp) ───────────── */
+@media (pointer: coarse) {
+  /* The tab stays visually slim; only its hit area grows. A transparent
+     ::after is how a 36px-wide control reaches 48×52 without looking fat. */
+  .mtb-tab::after {
+    content: '';
+    position: absolute;
+    inset: -6px 0 -6px -12px;
+  }
+
+  .mtb-tab.left::after {
+    inset: -6px -12px -6px 0;
+  }
+
+  /* A floor, not a fixed height: a touch laptop wider than 480px still gets the
+     vertical bar, and pinning it to 48px would crush three stacked buttons. The
+     phone width rule below sets its own height and wins by order. */
+  .mtb-toolbar {
+    min-height: 56px;
+    border-radius: 16px;
+  }
+
+  .mtb-toolbar-mode-btn,
+  .mtb-exit-btn {
+    min-height: 44px;
+  }
+
+  /* iOS zooms the entire page when a focused field computes under 16px, and
+     nothing zooms it back — so every tap on a text field looks like the widget
+     broke the page. 16px is the threshold, not a design choice. */
+  
+  .mtb-chat-input,
+  .mtb-chat-email-input,
+  .mtb-draw-input{
+    font-size: 16px;
+  }
+}
+
+/* ── Axis 2: layout form on narrow screens ───────────────────────────── */
+@media (max-width: 480px) {
+  /* Tab: icon only. The label is customer-supplied via `tabText`, so its
+     length is unbounded — the English default set vertically is 87px tall,
+     and a German word is longer still. An icon is a fixed 40px in every
+     locale. The accessible name is unaffected: tab.ts sets aria-label. */
+  .mtb-tab {
+    width: 36px;
+    height: 40px;
+    padding: 0;
+    font-size: 0;
+    writing-mode: horizontal-tb;
+    border-radius: 12px 0 0 12px;
+    right: env(safe-area-inset-right, 0px);
+  }
+
+  .mtb-tab.left {
+    left: env(safe-area-inset-left, 0px);
+    border-radius: 0 12px 12px 0;
+  }
+
+  .mtb-tab::before {
+    content: '';
+    width: 18px;
+    height: 18px;
+    background: currentColor;
+    -webkit-mask: var(--mtb-tab-icon) center / contain no-repeat;
+    mask: var(--mtb-tab-icon) center / contain no-repeat;
+  }
+
+  /* A quiet iOS-style system bar. Annotation still owns the top strip, but the
+     chrome recedes so the dimmed customer page remains the thing being edited. */
+  .mtb-toolbar {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: auto;
+    width: 100%;
+    max-width: none;
+    max-height: none;
+    transform: none;
+    flex-direction: row;
+    align-items: center;
+    border-radius: 0;
+    gap: 8px;
+    justify-content: center;
+    padding: env(safe-area-inset-top, 0px) 8px 0;
+    height: calc(44px + env(safe-area-inset-top, 0px));
+    min-height: calc(44px + env(safe-area-inset-top, 0px));
+    border-bottom: 1px solid rgba(60, 60, 67, 0.16);
+    background: rgba(248, 248, 248, 0.96);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: blur(18px);
+    animation: none;
+  }
+
+  /* Markup and recording are mutually exclusive modes, so they share the
+     native segmented-control treatment instead of reading as two actions. */
+  .mtb-toolbar-modes {
+    flex-direction: row;
+    gap: 0;
+    padding: 2px;
+    background: rgba(118, 118, 128, 0.12);
+    border-radius: 8px;
+  }
+
+  .mtb-toolbar-sep {
+    display: none;
+  }
+
+  /* A first-use coach mark, not another control. The annotation dim remains
+     visible underneath; this adds only enough contrast for one line of text.
+     It cannot consume the first stroke, and carries no motion of its own. */
+  .mtb-hint-bar {
+    top: calc(44px + env(safe-area-inset-top, 0px));
+    right: 0;
+    bottom: 0;
+    left: 0;
+    transform: none;
+    justify-content: center;
+    height: auto;
+    padding: 0 24px;
+    border-radius: 0;
+    background: rgba(0, 0, 0, 0.1);
+    box-shadow: none;
+    animation: none;
+    white-space: normal;
+    text-align: center;
+    transition: none;
+  }
+
+  .mtb-hint-bar .mtb-toolbar-hint {
+    max-width: 280px;
+    color: rgba(255, 255, 255, 0.96);
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: 0;
+    white-space: normal;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+  }
+
+  /* Room for words here: the bar runs the width of the screen. */
+  .mtb-toolbar-mode-btn,
+  .mtb-exit-btn {
+    position: relative;
+    width: auto;
+    height: 32px;
+    min-height: 32px;
+    gap: 6px;
+    border-radius: 6px;
+    padding-right: 8px;
+    padding-left: 8px;
+    color: rgba(60, 60, 67, 0.82);
+    transition: none;
+  }
+
+  .mtb-toolbar-mode-btn:hover {
+    background: transparent;
+    color: rgba(60, 60, 67, 0.82);
+  }
+
+  .mtb-toolbar-mode-btn.active,
+  .mtb-toolbar-mode-btn.active:hover {
+    background: var(--mtb-brand-on-primary);
+    color: var(--mtb-brand-hover);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  }
+
+  /* Keep Apple HIG's 44px touch target without making the visible controls
+     fill the entire bar. The pseudo-element belongs to the button hit box. */
+  .mtb-toolbar-mode-btn::after,
+  .mtb-exit-btn::after {
+    content: '';
+    position: absolute;
+    inset: -6px 0;
+  }
+
+  .mtb-exit-btn {
+    width: 32px;
+    padding: 0;
+    border-radius: 50%;
+    background: rgba(118, 118, 128, 0.12);
+  }
+
+  .mtb-exit-btn:hover {
+    background: rgba(118, 118, 128, 0.12);
+    color: rgba(60, 60, 67, 0.82);
+  }
+
+  .mtb-toolbar-label {
+    display: inline;
+  }
+
+  .mtb-exit-btn .mtb-toolbar-label {
+    display: none;
+  }
+
+  /* The draw note bar was unreachable on a phone until freehand drawing
+     started working, so its desktop geometry — a centred pill floating 48px up
+     — was never exercised by a thumb. Edge-to-edge and flush to the bottom
+     keeps its text field clear of the keyboard, which lifts it from here. */
+  .mtb-draw-bar {
+    left: 0;
+    right: 0;
+    bottom: 0;
+    transform: none;
+    height: auto;
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px));
+    border-radius: 16px 16px 0 0;
+  }
+
+  /* Frustration prompt: now the only entry point a phone gets by default, since
+     no tab is rendered on touch. A pill floating bottom-right was sized for a
+     desktop corner — at 393px the icon, a sentence and two buttons cannot share
+     one row, and the row wins by squeezing the buttons under a thumb's size.
+     Stacked and edge-to-edge instead, with both actions on a line of their own. */
+  .mtb-frustration-prompt {
+    left: 0;
+    right: 0;
+    bottom: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+    border-radius: 16px 16px 0 0;
+    border-width: 1px 0 0;
+    /* Same reason the sheet and bar drop theirs: a spring easing overshoots,
+       and an overshoot across a phone's full width reads as a glitch. */
+    animation: none;
+  }
+
+  .mtb-frustration-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .mtb-frustration-tell,
+  .mtb-frustration-dismiss {
+    flex: 1;
+    min-height: 44px;
+  }
+
+  /* ── Chat popup: bottom sheet ──────────────────────────────────────── */
+  .mtb-chat {
+    position: fixed;
+    left: 0 !important;
+    right: 0;
+    bottom: 0;
+    top: auto !important;
+    width: 100%;
+    max-width: none;
+    max-height: 85vh;
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -18px 60px rgba(0, 0, 0, 0.20);
+    animation: none;
+  }
+
+  /* Drag handle — mobile only, centered above brand row */
+  .mtb-chat-handle {
+    width: 36px;
+    height: 4px;
+    border-radius: 99px;
+    background: rgba(0, 0, 0, 0.12);
+    margin: 0 auto;
+    flex-shrink: 0;
+  }
+
+  .mtb-chat-header {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    border-radius: 20px 20px 0 0;
+    padding: 10px 16px 12px;
+  }
+
+  /* Brand row sits full-width below the handle */
+  .mtb-chat-header-row {
+    width: 100%;
+    display: flex;
+    align-items: center;
+  }
+
+  .mtb-chat-messages {
+    padding: 14px 16px 12px;
+  }
+
+  .mtb-chat-quick-replies {
+    padding: 14px 16px 12px;
+  }
+
+  /* Quick reply pills: slightly larger on mobile */
+  .mtb-chat-qr {
+    padding: 8px 13px;
+  }
+
+  /* Clarification suggestion pills: larger on mobile */
+  .mtb-chat-suggestions {
+    padding-left: 45px;
+  }
+
+  .mtb-chat-sg {
+    padding: 8px 13px;
+    font-size: 12px;
+  }
+
+  .mtb-chat-composer {
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 12px));
+  }
+
+  /* ── Chat success states ─────────────────────────────────────────── */
+  /* State 04: completed with email card */
+  .mtb-chat-success {
+    padding: 30px 20px 30px;
+  }
+
+  /* State 05: direct success (no email card) — extra bottom for home indicator */
+  .mtb-chat-success-simple {
+    padding-top: 36px;
+    padding-bottom: calc(44px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* Email capture card: slightly more generous spacing */
+  .mtb-chat-email-card {
+    margin-top: 12px;
+    padding: 12px;
+    gap: 8px;
+  }
+}
+
+/* ── Dark mode: mobile drag handle ─────────────────────────────────── */
+:host([data-mtb-theme="dark"]) .mtb-chat-handle {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+@media (prefers-color-scheme: dark) {
+  :host([data-mtb-theme="auto"]) .mtb-chat-handle {
+    background: rgba(255, 255, 255, 0.2);
+  }
+}
+
+/* ── Dark mode: mobile box-shadow ──────────────────────────────────── */
+@media (max-width: 480px) {
+  :host([data-mtb-theme="dark"]) .mtb-chat {
+    box-shadow: 0 -18px 60px rgba(0, 0, 0, 0.55);
+  }
+}
+
+@media (max-width: 480px) and (prefers-color-scheme: dark) {
+  :host([data-mtb-theme="auto"]) .mtb-chat {
+    box-shadow: 0 -18px 60px rgba(0, 0, 0, 0.55);
+  }
+}
+
+/* ── Desktop: hide drag handle ─────────────────────────────────────── */
+.mtb-chat-handle {
+  display: none;
+}
+
+@media (max-width: 480px) {
+  .mtb-chat-handle {
+    display: block;
+  }
+}
