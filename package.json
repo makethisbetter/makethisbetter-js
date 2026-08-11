@@ -1,0 +1,77 @@
+{
+  "name": "makethisbetter",
+  "version": "1.28.0",
+  "description": "Make This Better JS Widget SDK — embed user feedback collection in any website",
+  "type": "module",
+  "main": "./dist/makethisbetter.cjs",
+  "module": "./dist/makethisbetter.esm.js",
+  "types": "./dist/index.d.ts",
+  "unpkg": "./dist/makethisbetter.js",
+  "jsdelivr": "./dist/makethisbetter.js",
+  "sideEffects": [
+    "./dist/*.js",
+    "./dist/*.cjs",
+    "./src/index.ts"
+  ],
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/makethisbetter.esm.js"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/makethisbetter.cjs"
+      }
+    },
+    "./package.json": "./package.json",
+    "./standalone": "./dist/makethisbetter.standalone.js"
+  },
+  "files": [
+    "dist",
+    "src",
+    "!src/**/*.test.ts"
+  ],
+  "scripts": {
+    "prepare": "patch-package",
+    "prepack": "npm run build && node scripts/check-dist.mjs",
+    "dev": "vite serve demo",
+    "build": "vite build && vite build --config vite.standalone.config.ts && vite build --config vite.iife.config.ts && tsc --emitDeclarationOnly --declaration --declarationDir dist && node scripts/fix-dts-specifiers.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:install": "bash test-install-methods.sh",
+    "type-check": "tsc --noEmit",
+    "lint": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^1.5.0",
+    "jsdom": "^24.0.0",
+    "patch-package": "^8.0.0",
+    "playwright": "^1.62.0",
+    "typescript": "^5.4.0",
+    "vite": "^5.2.0",
+    "vitest": "^1.5.0"
+  },
+  "dependencies": {
+    "@rrweb/record": "^2.1.0",
+    "html-to-image": "^1.11.11"
+  },
+  "keywords": [
+    "feedback",
+    "widget",
+    "ai",
+    "mcp",
+    "claude-code",
+    "cursor",
+    "vibe-coding",
+    "agent",
+    "bug-reporting",
+    "annotation"
+  ],
+  "homepage": "https://makethisbetter.dev",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/makethisbetter/makethisbetter-js.git"
+  },
+  "license": "MIT"
+}
