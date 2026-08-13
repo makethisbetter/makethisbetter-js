@@ -1,0 +1,222 @@
+diff --git a/node_modules/html-to-image/es/dataurl.js b/node_modules/html-to-image/es/dataurl.js
+index 174e4b9..2c66a09 100644
+--- a/node_modules/html-to-image/es/dataurl.js
++++ b/node_modules/html-to-image/es/dataurl.js
+@@ -9,8 +9,8 @@ export function makeDataUrl(content, mimeType) {
+ }
+ export async function fetchAsDataURL(url, init, process) {
+     const res = await fetch(url, init);
+-    if (res.status === 404) {
+-        throw new Error(`Resource "${res.url}" not found`);
++    if (!res.ok) {
++        throw new Error(`Resource "${res.url}" returned HTTP ${res.status}`);
+     }
+     const blob = await res.blob();
+     return new Promise((resolve, reject) => {
+@@ -51,13 +51,23 @@ export async function resourceToDataURL(resourceUrl, contentType, options) {
+     }
+     let dataURL;
+     try {
+-        const content = await fetchAsDataURL(resourceUrl, options.fetchRequestInit, ({ res, result }) => {
++        const fetchResource = (url) => fetchAsDataURL(url, options.fetchRequestInit, ({ res, result }) => {
+             if (!contentType) {
+                 // eslint-disable-next-line no-param-reassign
+                 contentType = res.headers.get('Content-Type') || '';
+             }
+             return getContentFromDataUrl(result);
+         });
++        let content;
++        try {
++            content = await fetchResource(resourceUrl);
++        }
++        catch (directError) {
++            const fallbackUrl = await options.resourceUrlResolver?.(resourceUrl, contentType);
++            if (!fallbackUrl || fallbackUrl === resourceUrl)
++                throw directError;
++            content = await fetchResource(fallbackUrl);
++        }
+         dataURL = makeDataUrl(content, contentType);
+     }
+     catch (error) {
+diff --git a/node_modules/html-to-image/es/types.d.ts b/node_modules/html-to-image/es/types.d.ts
+index a832baf..a05c3c3 100644
+--- a/node_modules/html-to-image/es/types.d.ts
++++ b/node_modules/html-to-image/es/types.d.ts
+@@ -56,6 +56,8 @@ export interface Options {
+      * areas for failed images.
+      */
+     imagePlaceholder?: string;
++    /** Resolve a resource URL after its direct fetch fails. */
++    resourceUrlResolver?: (resourceUrl: string, contentType?: string) => string | undefined | Promise<string | undefined>;
+     /**
+      * The pixel ratio of captured image. Defalut is the actual pixel ratio of
+      * the device. Set 1 to use as initial-scale 1 for the image
+diff --git a/node_modules/html-to-image/lib/dataurl.js b/node_modules/html-to-image/lib/dataurl.js
+index d0b4141..7d15e88 100644
+--- a/node_modules/html-to-image/lib/dataurl.js
++++ b/node_modules/html-to-image/lib/dataurl.js
+@@ -56,8 +56,8 @@ function fetchAsDataURL(url, init, process) {
+                 case 0: return [4 /*yield*/, fetch(url, init)];
+                 case 1:
+                     res = _a.sent();
+-                    if (res.status === 404) {
+-                        throw new Error("Resource \"".concat(res.url, "\" not found"));
++                    if (!res.ok) {
++                        throw new Error("Resource \"".concat(res.url, "\" returned HTTP ").concat(res.status));
+                     }
+                     return [4 /*yield*/, res.blob()];
+                 case 2:
+@@ -94,9 +94,10 @@ function getCacheKey(url, contentType, includeQueryParams) {
+ }
+ function resourceToDataURL(resourceUrl, contentType, options) {
+     return __awaiter(this, void 0, void 0, function () {
+-        var cacheKey, dataURL, content, error_1, msg;
+-        return __generator(this, function (_a) {
+-            switch (_a.label) {
++        var cacheKey, dataURL, fetchResource, content, directError_1, fallbackUrl, error_1, msg;
++        var _a;
++        return __generator(this, function (_b) {
++            switch (_b.label) {
+                 case 0:
+                     cacheKey = getCacheKey(resourceUrl, contentType, options.includeQueryParams);
+                     if (cache[cacheKey] != null) {
+@@ -107,23 +108,43 @@ function resourceToDataURL(resourceUrl, contentType, options) {
+                         // eslint-disable-next-line no-param-reassign
+                         resourceUrl += (/\?/.test(resourceUrl) ? '&' : '?') + new Date().getTime();
+                     }
+-                    _a.label = 1;
++                    _b.label = 1;
+                 case 1:
+-                    _a.trys.push([1, 3, , 4]);
+-                    return [4 /*yield*/, fetchAsDataURL(resourceUrl, options.fetchRequestInit, function (_a) {
++                    _b.trys.push([1, 8, , 9]);
++                    fetchResource = function (url) {
++                        return fetchAsDataURL(url, options.fetchRequestInit, function (_a) {
+                             var res = _a.res, result = _a.result;
+                             if (!contentType) {
+                                 // eslint-disable-next-line no-param-reassign
+                                 contentType = res.headers.get('Content-Type') || '';
+                             }
+                             return getContentFromDataUrl(result);
+-                        })];
++                        });
++                    };
++                    content = void 0;
++                    _b.label = 2;
+                 case 2:
+-                    content = _a.sent();
+-                    dataURL = makeDataUrl(content, contentType);
+-                    return [3 /*break*/, 4];
++                    _b.trys.push([2, 4, , 7]);
++                    return [4 /*yield*/, fetchResource(resourceUrl)];
+                 case 3:
+-                    error_1 = _a.sent();
++                    content = _b.sent();
++                    return [3 /*break*/, 7];
++                case 4:
++                    directError_1 = _b.sent();
++                    return [4 /*yield*/, ((_a = options.resourceUrlResolver) === null || _a === void 0 ? void 0 : _a.call(options, resourceUrl, contentType))];
++                case 5:
++                    fallbackUrl = _b.sent();
++                    if (!fallbackUrl || fallbackUrl === resourceUrl)
++                        throw directError_1;
++                    return [4 /*yield*/, fetchResource(fallbackUrl)];
++                case 6:
++                    content = _b.sent();
++                    return [3 /*break*/, 7];
++                case 7:
++                    dataURL = makeDataUrl(content, contentType);
++                    return [3 /*break*/, 9];
++                case 8:
++                    error_1 = _b.sent();
+                     dataURL = options.imagePlaceholder || '';
+                     msg = "Failed to fetch resource: ".concat(resourceUrl);
+                     if (error_1) {
+@@ -132,8 +153,8 @@ function resourceToDataURL(resourceUrl, contentType, options) {
+                     if (msg) {
+                         console.warn(msg);
+                     }
+-                    return [3 /*break*/, 4];
+-                case 4:
++                    return [3 /*break*/, 9];
++                case 9:
+                     cache[cacheKey] = dataURL;
+                     return [2 /*return*/, dataURL];
+             }
+diff --git a/node_modules/html-to-image/lib/types.d.ts b/node_modules/html-to-image/lib/types.d.ts
+index a832baf..a05c3c3 100644
+--- a/node_modules/html-to-image/lib/types.d.ts
++++ b/node_modules/html-to-image/lib/types.d.ts
+@@ -56,6 +56,8 @@ export interface Options {
+      * areas for failed images.
+      */
+     imagePlaceholder?: string;
++    /** Resolve a resource URL after its direct fetch fails. */
++    resourceUrlResolver?: (resourceUrl: string, contentType?: string) => string | undefined | Promise<string | undefined>;
+     /**
+      * The pixel ratio of captured image. Defalut is the actual pixel ratio of
+      * the device. Set 1 to use as initial-scale 1 for the image
+diff --git a/node_modules/html-to-image/src/dataurl.ts b/node_modules/html-to-image/src/dataurl.ts
+index 13bc8b4..9f25187 100644
+--- a/node_modules/html-to-image/src/dataurl.ts
++++ b/node_modules/html-to-image/src/dataurl.ts
+@@ -18,8 +18,8 @@ export async function fetchAsDataURL<T>(
+   process: (data: { result: string; res: Response }) => T,
+ ): Promise<T> {
+   const res = await fetch(url, init)
+-  if (res.status === 404) {
+-    throw new Error(`Resource "${res.url}" not found`)
++  if (!res.ok) {
++    throw new Error(`Resource "${res.url}" returned HTTP ${res.status}`)
+   }
+   const blob = await res.blob()
+   return new Promise<T>((resolve, reject) => {
+@@ -82,16 +82,26 @@ export async function resourceToDataURL(
+   let dataURL: string
+   try {
+-    const content = await fetchAsDataURL(
+-      resourceUrl,
+-      options.fetchRequestInit,
+-      ({ res, result }) => {
++    const fetchResource = (url: string) =>
++      fetchAsDataURL(url, options.fetchRequestInit, ({ res, result }) => {
+         if (!contentType) {
+           // eslint-disable-next-line no-param-reassign
+           contentType = res.headers.get('Content-Type') || ''
+         }
+         return getContentFromDataUrl(result)
+-      },
+-    )
++      })
++
++    let content: string
++    try {
++      content = await fetchResource(resourceUrl)
++    } catch (directError) {
++      const fallbackUrl = await options.resourceUrlResolver?.(
++        resourceUrl,
++        contentType,
++      )
++      if (!fallbackUrl || fallbackUrl === resourceUrl) throw directError
++
++      content = await fetchResource(fallbackUrl)
++    }
+     dataURL = makeDataUrl(content, contentType!)
+   } catch (error) {
+     dataURL = options.imagePlaceholder || ''
+diff --git a/node_modules/html-to-image/src/types.ts b/node_modules/html-to-image/src/types.ts
+index 6023c3c..2b1270e 100644
+--- a/node_modules/html-to-image/src/types.ts
++++ b/node_modules/html-to-image/src/types.ts
+@@ -56,6 +56,11 @@ export interface Options {
+    * areas for failed images.
+    */
+   imagePlaceholder?: string
++  /** Resolve a resource URL after its direct fetch fails. */
++  resourceUrlResolver?: (
++    resourceUrl: string,
++    contentType?: string,
++  ) => string | undefined | Promise<string | undefined>
+   /**
+    * The pixel ratio of captured image. Defalut is the actual pixel ratio of
+    * the device. Set 1 to use as initial-scale 1 for the image
