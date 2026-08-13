@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.DS_Store
+*.local
+coverage/
+# Diagnostic sink written by e2e/server.mjs during real-device runs
+e2e/device-log.txt
