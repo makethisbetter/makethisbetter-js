@@ -1,0 +1,261 @@
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { ChatPopup } from './chat-popup'
+import { ShadowContainer } from '../widget/shadow'
+import { getMessages } from '../i18n'
+import type { ClarifyStreamResult } from '../api/client'
+import type { SubmissionSessionResponse } from '../types'
+
+function makeSession(overrides?: Partial<SubmissionSessionResponse>): SubmissionSessionResponse {
+  return { id: 'sub_1', token: 'tok', ai_clarify_available: true, ...overrides }
+}
+
+function makeResult(overrides?: Partial<ClarifyStreamResult>): ClarifyStreamResult {
+  return {
+    done: false,
+    suggestions: [],
+    messages: [{ role: 'assistant', content: 'What went wrong?' }],
+    ...overrides,
+  }
+}
+
+function mountPopup(overrides: Record<string, unknown> = {}) {
+  const shadow = new ShadowContainer()
+  const messages = getMessages('en')
+  const defaults: Record<string, unknown> = {
+    targetName: 'Button',
+    x: 100,
+    y: 100,
+    messages,
+    onSubmit: vi.fn().mockResolvedValue(makeSession()),
+    onClarify: vi.fn().mockResolvedValue(makeResult()),
+    onAnswer: vi.fn().mockResolvedValue(undefined),
+    onFinalize: vi.fn().mockResolvedValue(undefined),
+    onCancel: vi.fn(),
+  }
+  const opts = { ...defaults, ...overrides }
+  const popup = new ChatPopup(shadow, opts as unknown as ConstructorParameters<typeof ChatPopup>[1])
+  return { shadow, popup, opts }
+}
+
+describe('ChatPopup streaming', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  it('shows streaming bubble immediately on first delta, not after stream ends', async () => {
+    let emitDelta!: (text: string) => void
+    const onClarify = vi.fn((_id: string, _tok: string, onDelta: (d: string) => void) => {
+      emitDelta = onDelta
+      return new Promise<ClarifyStreamResult>(() => {})
+    })
+    const { shadow, popup } = mountPopup({ onClarify })
+    popup.submit('test')
+
+    await vi.waitFor(() => expect(onClarify).toHaveBeenCalled())
+
+    expect(shadow.root.querySelector('.mtb-chat-bubble-ai')).toBeNull()
+
+    emitDelta('Hello')
+
+    expect(shadow.root.querySelector('.mtb-chat-bubble-ai')).toBeTruthy()
+    expect(shadow.root.querySelector('.mtb-chat-bubble-ai')!.textContent).toBe('Hello')
+
+    emitDelta(' world')
+    expect(shadow.root.querySelector('.mtb-chat-bubble-ai')!.textContent).toBe('Hello world')
+
+    popup.destroy()
+    shadow.destroy()
+  })
+
+  it('skips streaming bubble when done:true and shows receipt directly', async () => {
+    const onClarify = vi.fn().mockResolvedValue(makeResult({ done: true, messages: [] }))
+    const { shadow, popup } = mountPopup({ onClarify })
+
+    popup.submit('clear feedback')
+
+    await vi.waitFor(() => {
+      expect(shadow.root.querySelector('.mtb-chat-success')).toBeTruthy()
+    })
+
+    expect(shadow.root.querySelector('.mtb-chat-bubble-ai')).toBeNull()
+
+    popup.destroy()
+    shadow.destroy()
+  })
+
+  it('auto-closes a finalized receipt after three seconds', async () => {
+    vi.useFakeTimers()
+    const onClarify = vi.fn().mockResolvedValue(makeResult({ done: true, messages: [] }))
+    const { shadow, popup } = mountPopup({
+      onClarify,
+      resolveEmailCapture: () => ({ onSubmit: vi.fn().mockResolvedValue(true) }),
+    })
+
+    popup.submit('clear feedback')
+    await vi.waitFor(() => expect(shadow.root.querySelector('.mtb-chat-success')).toBeTruthy())
+    await Promise.resolve()
+    await Promise.resolve()
+
+    popup.showFinalizeSuccess()
+    expect(shadow.root.querySelector('.mtb-chat-email-input')).toBeTruthy()
+
+    await vi.advanceTimersByTimeAsync(2_999)
+    expect(shadow.root.querySelector('.mtb-chat')).toBeTruthy()
+
+    await vi.advanceTimersByTimeAsync(1)
+    expect(shadow.root.querySelector('.mtb-chat')).toBeNull()
+
+    shadow.destroy()
+    vi.useRealTimers()
+  })
+
+  it('pauses auto-close while email is being filled and saved', async () => {
+    vi.useFakeTimers()
+    let resolveSave!: (saved: boolean) => void
+    const saveEmail = vi.fn(() => new Promise<boolean>(resolve => { resolveSave = resolve }))
+    const onClarify = vi.fn().mockResolvedValue(makeResult({ done: true, messages: [] }))
+    const { shadow, popup } = mountPopup({
+      onClarify,
+      resolveEmailCapture: () => ({ onSubmit: saveEmail }),
+    })
+
+    popup.submit('clear feedback')
+    await vi.waitFor(() => expect(shadow.root.querySelector('.mtb-chat-success')).toBeTruthy())
+    await Promise.resolve()
+    await Promise.resolve()
+
+    popup.showFinalizeSuccess()
+    const emailInput = shadow.root.querySelector<HTMLInputElement>('.mtb-chat-email-input')!
+    emailInput.focus()
+    emailInput.value = 'anon@example.com'
+    emailInput.dispatchEvent(new Event('input'))
+
+    await vi.advanceTimersByTimeAsync(3_000)
+    expect(shadow.root.querySelector('.mtb-chat')).toBeTruthy()
+
+    shadow.root.querySelector<HTMLButtonElement>('.mtb-chat-email-submit')!.click()
+    expect(saveEmail).toHaveBeenCalledWith('anon@example.com')
+    await vi.advanceTimersByTimeAsync(3_000)
+    expect(shadow.root.querySelector('.mtb-chat')).toBeTruthy()
+
+    resolveSave(true)
+    await vi.advanceTimersByTimeAsync(0)
+    expect(shadow.root.querySelector('.mtb-chat-email-note')).toBeTruthy()
+    await vi.advanceTimersByTimeAsync(2_999)
+    expect(shadow.root.querySelector('.mtb-chat')).toBeTruthy()
+    await vi.advanceTimersByTimeAsync(1)
+    expect(shadow.root.querySelector('.mtb-chat')).toBeNull()
+
+    shadow.destroy()
+    vi.useRealTimers()
+  })
+
+  it('passes AbortSignal to onClarify', async () => {
+    const onClarify = vi.fn((_id: string, _tok: string, _delta: unknown, signal: AbortSignal) => {
+      expect(signal).toBeInstanceOf(AbortSignal)
+      return Promise.resolve(makeResult())
+    })
+    const { shadow, popup } = mountPopup({ onClarify })
+    popup.submit('test')
+
+    await vi.waitFor(() => expect(onClarify).toHaveBeenCalled())
+    expect(onClarify.mock.calls[0][3]).toBeInstanceOf(AbortSignal)
+
+    popup.destroy()
+    shadow.destroy()
+  })
+
+  it('aborts the SSE stream when destroyed', async () => {
+    let signal: AbortSignal | undefined
+    const onClarify = vi.fn((_id: string, _tok: string, _delta: unknown, s: AbortSignal) => {
+      signal = s
+      return new Promise<ClarifyStreamResult>(() => {})
+    })
+    const { shadow, popup } = mountPopup({ onClarify })
+    popup.submit('test')
+
+    await vi.waitFor(() => expect(onClarify).toHaveBeenCalled())
+    expect(signal?.aborted).toBe(false)
+
+    popup.destroy()
+    expect(signal?.aborted).toBe(true)
+
+    shadow.destroy()
+  })
+})
+
+describe('ChatPopup finalize failure', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  it('shows failure state in the receipt card', async () => {
+    const onClarify = vi.fn().mockResolvedValue(makeResult({ done: true, messages: [] }))
+    const { shadow, popup } = mountPopup({ onClarify })
+
+    popup.submit('test')
+    await vi.waitFor(() => expect(shadow.root.querySelector('.mtb-chat-success')).toBeTruthy())
+
+    const retry = vi.fn()
+    popup.showFinalizeFailure(retry)
+
+    expect(shadow.root.querySelector('.mtb-chat-finalize-failure')).toBeTruthy()
+    expect(shadow.root.querySelector('.mtb-chat-finalize-retry')).toBeTruthy()
+
+    popup.destroy()
+    shadow.destroy()
+  })
+
+  it('creates failure container when receipt does not exist yet', async () => {
+    const { shadow, popup } = mountPopup()
+
+    popup.showFinalizeFailure()
+
+    expect(shadow.root.querySelector('.mtb-chat-finalize-failure')).toBeTruthy()
+    expect(shadow.root.querySelector('.mtb-chat-finalize-retry')).toBeNull()
+
+    popup.destroy()
+    shadow.destroy()
+  })
+
+  it('does not auto-close while failure card is showing', async () => {
+    vi.useFakeTimers()
+    const onFinalize = vi.fn().mockResolvedValue(undefined)
+    const onClarify = vi.fn().mockResolvedValue(makeResult({ done: true, messages: [] }))
+    const onCancel = vi.fn()
+    const { shadow, popup } = mountPopup({ onClarify, onFinalize, onCancel })
+
+    popup.submit('test')
+    await vi.waitFor(() => expect(shadow.root.querySelector('.mtb-chat-success')).toBeTruthy())
+
+    popup.showFinalizeFailure(vi.fn())
+    expect(shadow.root.querySelector('.mtb-chat-finalize-failure')).toBeTruthy()
+
+    await vi.advanceTimersByTimeAsync(10_000)
+
+    expect(shadow.root.querySelector('.mtb-chat-finalize-failure')).toBeTruthy()
+    expect(onCancel).not.toHaveBeenCalled()
+
+    vi.useRealTimers()
+    popup.destroy()
+    shadow.destroy()
+  })
+
+  it('restores receipt after showFinalizeSuccess', async () => {
+    const onClarify = vi.fn().mockResolvedValue(makeResult({ done: true, messages: [] }))
+    const { shadow, popup } = mountPopup({ onClarify })
+
+    popup.submit('test')
+    await vi.waitFor(() => expect(shadow.root.querySelector('.mtb-chat-success')).toBeTruthy())
+
+    popup.showFinalizeFailure(vi.fn())
+    expect(shadow.root.querySelector('.mtb-chat-finalize-failure')).toBeTruthy()
+
+    popup.showFinalizeSuccess()
+    expect(shadow.root.querySelector('.mtb-chat-finalize-failure')).toBeNull()
+    expect(shadow.root.querySelector('.mtb-chat-success')).toBeTruthy()
+
+    popup.destroy()
+    shadow.destroy()
+  })
+})
