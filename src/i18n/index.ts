@@ -5,6 +5,7 @@ import ko from './ko'
 import es from './es'
 import fr from './fr'
 import de from './de'
+import ptBR from './pt-BR'
 
 export type I18nMessages = typeof en
 
@@ -16,6 +17,8 @@ const locales: Record<string, I18nMessages> = {
   es,
   fr,
   de,
+  'pt-BR': ptBR,
+  pt: ptBR,
 }
 
 export function getMessages(locale: string): I18nMessages {

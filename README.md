@@ -256,7 +256,7 @@ Every submission automatically includes:
 
 ### Internationalization
 
-Built-in support for 7 languages:
+Built-in support for 8 languages:
 
 | Code | Language |
 |------|----------|
@@ -267,6 +267,7 @@ Built-in support for 7 languages:
 | `es` | Spanish |
 | `fr` | French |
 | `de` | German |
+| `pt-BR` | Portuguese (Brazil), also matched by `pt` and `pt-PT` |
 
 ## Configuration
 

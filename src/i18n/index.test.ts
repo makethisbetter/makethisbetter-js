@@ -20,7 +20,7 @@ describe('getMessages', () => {
   })
 
   it('falls back to English for unknown locale', () => {
-    const m = getMessages('pt')
+    const m = getMessages('sv')
     expect(m.tab).toBe('Feedback')
   })
 
@@ -30,7 +30,7 @@ describe('getMessages', () => {
   })
 
   it('keeps the widget design quick-option set in every locale', () => {
-    for (const locale of ['en', 'zh-CN', 'ja', 'ko', 'es', 'fr', 'de']) {
+    for (const locale of ['en', 'zh-CN', 'ja', 'ko', 'es', 'fr', 'de', 'pt-BR']) {
       expect(getMessages(locale).popup.quickOptions).toHaveLength(3)
     }
 
@@ -39,5 +39,43 @@ describe('getMessages', () => {
       'Suggestion',
       'Confused',
     ])
+  })
+
+  it('returns Brazilian Portuguese for "pt-BR"', () => {
+    const m = getMessages('pt-BR')
+    expect(m.popup.placeholder).toBe('Descreva o problema ou sugestão...')
+    expect(m.popup.submit).toBe('Enviar')
+    expect(m.frustration.prompt).toBe('Algo não está funcionando? Conte para a gente.')
+    expect(m.popup.quickOptions.map(option => option.label)).toEqual([
+      'Erro',
+      'Sugestão',
+      'Dúvida',
+    ])
+  })
+
+  it('returns Brazilian Portuguese for the "pt" alias', () => {
+    expect(getMessages('pt')).toBe(getMessages('pt-BR'))
+  })
+
+  it('resolves "pt-PT" to the "pt" alias', () => {
+    expect(getMessages('pt-PT')).toBe(getMessages('pt-BR'))
+  })
+
+  it('keeps every locale key-compatible with English', () => {
+    const shape = (value: unknown): unknown => {
+      if (Array.isArray(value)) return value.map(shape)
+      if (value && typeof value === 'object') {
+        return Object.fromEntries(
+          Object.entries(value as Record<string, unknown>)
+            .sort(([a], [b]) => a.localeCompare(b))
+            .map(([key, nested]) => [key, shape(nested)]),
+        )
+      }
+      return typeof value
+    }
+
+    for (const locale of ['zh-CN', 'ja', 'ko', 'es', 'fr', 'de', 'pt-BR']) {
+      expect(shape(getMessages(locale))).toEqual(shape(getMessages('en')))
+    }
   })
 })
