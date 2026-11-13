@@ -225,6 +225,14 @@ private network, use an unsupported format such as SVG, exceed the proxy limit,
 or fail to load are replaced with a transparent placeholder; the rest of the
 screenshot is preserved.
 
+### Session Recording Links (Microsoft Clarity)
+
+If the page already runs [Microsoft Clarity](https://clarity.microsoft.com/), the SDK attaches the current Clarity session to each submission automatically. No configuration is needed. The feedback detail page in the dashboard then shows a **View recording** link that opens that session in the Clarity player.
+
+- Pages without Clarity are unaffected; nothing is collected.
+- Clarity processes recordings with a delay (minutes to hours), so the link may not play immediately after submission.
+- The SDK reads only Clarity's project, user, and session identifiers to build the player URL; it does not load Clarity itself.
+
 ### Frustration Detection
 
 The SDK watches for signals that a user is struggling and proactively offers to collect feedback:
